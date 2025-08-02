@@ -120,6 +120,20 @@ export const DesktopHeader: React.FC<DesktopHeaderProps> = ({
                   WhatsApp Booking
                 </DropdownMenuItem>
               )}
+              {user?.role === 'admin' && (
+                <DropdownMenuItem onClick={() => {
+                  onNavigate('dashboard');
+                  setTimeout(() => {
+                    const adminTab = document.querySelector('[data-value="admins"]') as HTMLElement;
+                    if (adminTab) {
+                      adminTab.click();
+                    }
+                  }, 200);
+                }}>
+                  <Users className="h-4 w-4 mr-2" />
+                  Manage Admin Users
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={onLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 {t('nav.logout')}

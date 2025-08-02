@@ -1,4 +1,4 @@
-import { User, Menu, Bell, LogOut, Settings, MessageCircle, Languages } from "lucide-react";
+import { User, Menu, Bell, LogOut, Settings, MessageCircle, Languages, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MedicalLogo } from "@/components/ui/MedicalLogo";
@@ -94,6 +94,20 @@ export default function MobileHeader({ user, onMenuClick, onLogout, onNavigate, 
                 <DropdownMenuItem onClick={() => setShowWhatsAppModal(true)}>
                   <MessageCircle className="h-4 w-4 mr-2" />
                   WhatsApp Booking
+                </DropdownMenuItem>
+              )}
+              {user?.role === 'admin' && onNavigate && (
+                <DropdownMenuItem onClick={() => {
+                  onNavigate('dashboard');
+                  setTimeout(() => {
+                    const adminTab = document.querySelector('[data-value="admins"]') as HTMLElement;
+                    if (adminTab) {
+                      adminTab.click();
+                    }
+                  }, 200);
+                }}>
+                  <Users className="h-4 w-4 mr-2" />
+                  Manage Admin Users
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={onLogout}>
