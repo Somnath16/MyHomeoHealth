@@ -1,189 +1,208 @@
-# Deployment Guide
+# My Homeo Health - Deployment Guide
 
-This document provides comprehensive deployment instructions for the My Homeo Health application in both development and production environments.
+This document provides comprehensive deployment instructions for My Homeo Health on various platforms.
 
-## Quick Deployment Checklist
+## Local Development Setup
 
-### ✅ Environment Setup
-- [ ] Node.js >= 18.0.0 installed
-- [ ] PostgreSQL database provisioned
-- [ ] Environment variables configured
-- [ ] Dependencies installed (`npm install`)
-- [ ] Database schema pushed (`npm run db:push`)
+### Quick Setup Options
 
-### ✅ Production Deployment
-- [ ] Build application (`npm run build`)
-- [ ] Set NODE_ENV=production
-- [ ] Configure HTTPS/SSL
-- [ ] Start application (`npm start`)
+1. **Full Automated Setup (Recommended)**
+   ```bash
+   # Linux/macOS
+   chmod +x setup.sh && ./setup.sh
+   
+   # Windows (Run as Administrator)
+   setup.bat
+   ```
+
+2. **Quick Start (If you have Node.js & PostgreSQL)**
+   ```bash
+   chmod +x quick-start.sh && ./quick-start.sh
+   ```
+
+3. **Docker Setup**
+   ```bash
+   chmod +x docker-setup.sh && ./docker-setup.sh
+   ```
+
+4. **Test Your Setup**
+   ```bash
+   chmod +x test-setup.sh && ./test-setup.sh
+   ```
+
+### What Gets Configured
+
+- **Node.js 18+**: Automatic installation verification
+- **PostgreSQL**: Database setup with proper user permissions
+- **Environment Variables**: Secure configuration with session secrets
+- **Dependencies**: All npm packages installed
+- **Database Schema**: Automatic migration and setup
+- **AI Integration**: Optional Gemini/OpenAI/Anthropic configuration
+- **Port Management**: Automatic port conflict resolution
 
 ## Environment Configuration
 
-### Development Environment
-```bash
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
-
-# Push database schema
-npm run db:push
-
-# Start development server
-npm run dev
-```
-
-### Production Environment
-```bash
-# Build the application
-npm run build
-
-# Set production environment
-export NODE_ENV=production
-
-# Start production server
-npm start
-```
-
-## Environment Variables
-
 ### Required Variables
 ```env
-DATABASE_URL=postgresql://user:password@host:port/database
-NODE_ENV=development|production
-```
-
-### Recommended Variables
-```env
-GEMINI_API_KEY=your_gemini_api_key_for_ai_features
-SESSION_SECRET=your_secure_random_session_secret
+DATABASE_URL=postgresql://username:password@host:port/database
+NODE_ENV=development
+SESSION_SECRET=your-secure-session-secret
 PORT=5000
 ```
 
 ### Optional Variables
 ```env
+# AI Integration (choose one)
+GEMINI_API_KEY=your_gemini_api_key
+OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+
+# Database Connection Details (auto-configured)
 PGHOST=localhost
 PGPORT=5432
-PGUSER=username
-PGPASSWORD=password
-PGDATABASE=database_name
+PGDATABASE=homeo_health
+PGUSER=homeo_user
+PGPASSWORD=your_password
 ```
 
-## Database Setup
+## Cloud Deployment
 
-### PostgreSQL Configuration
-The application supports both local and cloud PostgreSQL databases:
+### Replit (Primary Platform)
+1. Import the repository to Replit
+2. Replit automatically provisions PostgreSQL
+3. No additional configuration needed
+4. Click "Run" to start
 
-- **Local Development**: Standard PostgreSQL with SSL disabled
-- **Production**: Cloud databases (Neon, Supabase, etc.) with SSL enabled
+### Vercel
+1. Deploy frontend to Vercel
+2. Configure external PostgreSQL (Neon, Supabase, etc.)
+3. Set environment variables in Vercel dashboard
+4. Use serverless functions for API
 
-### Schema Management
+### Railway
+1. Connect GitHub repository
+2. Railway auto-detects Node.js project
+3. Add PostgreSQL service
+4. Configure environment variables
+5. Deploy automatically
+
+### Heroku
+1. Create new Heroku app
+2. Add Heroku Postgres add-on
+3. Configure environment variables
+4. Deploy via Git or GitHub integration
+
+### DigitalOcean App Platform
+1. Create new app from GitHub
+2. Configure Node.js service
+3. Add managed PostgreSQL database
+4. Set environment variables
+5. Deploy
+
+## Database Setup Options
+
+### Local PostgreSQL
 ```bash
-# Push schema changes to database
-npm run db:push
+# Ubuntu/Debian
+sudo apt-get install postgresql postgresql-contrib
 
-# Open database studio (optional)
-npm run db:studio
+# macOS
+brew install postgresql
+brew services start postgresql
+
+# Windows
+# Download from https://www.postgresql.org/download/windows/
 ```
 
-## Server Configuration
+### Cloud Databases
+- **Neon**: `postgresql://user:pass@ep-xxx.us-east-1.aws.neon.tech/db`
+- **Supabase**: `postgresql://postgres:pass@db.xxx.supabase.co:5432/postgres`
+- **Railway**: `postgresql://user:pass@containers-us-west-xxx.railway.app:port/db`
+- **PlanetScale**: `mysql://user:pass@aws.connect.psdb.cloud/db?sslaccept=strict`
 
-### Development Mode
-- Vite development server with HMR
-- Hot module replacement for client code
-- TypeScript compilation on-the-fly
-- Database connection pooling (5 connections)
+## Production Considerations
 
-### Production Mode
-- Static file serving from dist/public
-- Optimized bundle with esbuild
-- Enhanced security headers
-- Database connection pooling (20 connections)
-- HTTPS-only cookies
+### Security
+- Use strong `SESSION_SECRET` (32+ characters)
+- Enable HTTPS/SSL in production
+- Set `NODE_ENV=production`
+- Use environment-specific database credentials
+- Enable CORS for specific domains only
 
-## File Upload Configuration
+### Performance
+- Enable database connection pooling
+- Use CDN for static assets
+- Implement proper caching strategies
+- Monitor database performance
+- Set up database indexes for frequently queried data
 
-### Supported Formats
-- CSV files (.csv)
-- Excel files (.xlsx, .xls)
-- PDF files (.pdf)
+### Monitoring
+- Set up application logging
+- Monitor database connections
+- Track API response times
+- Set up error reporting (Sentry, etc.)
+- Monitor system resources
 
-### Limits
-- Maximum file size: 10MB
-- Memory storage for processing
-- Automatic format detection
+## Default Credentials
 
-## Session Management
+After deployment, use these credentials to access the system:
 
-### Development
-- HTTP cookies allowed
-- SameSite: 'lax'
-- 24-hour session duration
+### Admin Account
+- **Username**: `admin`
+- **Password**: `admin123`
+- **Access**: Complete system administration
 
-### Production
-- HTTPS-only cookies
-- SameSite: 'strict'
-- Secure session handling
+### Doctor Accounts
+- **Username**: `doctor` / **Password**: `doctor123`
+- **Username**: `ranajit` / **Password**: `ranajit123`
+- **Access**: Patient management, prescriptions, appointments
 
-## Build Process
+**Important**: Change default passwords in production!
 
-### Client Build
-```bash
-# Vite builds the React frontend
-vite build
-# Output: dist/public/
-```
+## AI Integration Setup
 
-### Server Build
-```bash
-# esbuild bundles the Express server
-esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
-# Output: dist/index.js
-```
+### Google Gemini (Recommended)
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create new API key
+3. Add to environment: `GEMINI_API_KEY=your_key`
 
-## Health Checks
+### OpenAI
+1. Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Create new API key
+3. Add to environment: `OPENAI_API_KEY=your_key`
 
-### Development
-- Server starts on localhost:5000
-- Vite dev server provides HMR
-- Database connection verified on startup
-
-### Production
-- Server binds to 0.0.0.0:5000 (configurable)
-- Static files served efficiently
-- Database connection pool monitoring
-
-## Security Considerations
-
-### Development
-- CORS enabled for localhost
-- Session cookies over HTTP
-- Debug logging enabled
-
-### Production
-- HTTPS enforcement
-- Secure session configuration
-- Rate limiting (100 requests/minute)
-- Database connection encryption
+### Anthropic Claude
+1. Visit [Anthropic Console](https://console.anthropic.com/)
+2. Create new API key
+3. Add to environment: `ANTHROPIC_API_KEY=your_key`
 
 ## Troubleshooting
 
 ### Common Issues
 
-#### Database Connection
+**Port Already in Use**
 ```bash
-# Check DATABASE_URL format
-echo $DATABASE_URL
+# Find process using port
+lsof -i :5000  # macOS/Linux
+netstat -ano | findstr :5000  # Windows
 
-# Test database connection
-npm run db:push
+# Change port in .env.local
+PORT=5001
 ```
 
-#### Build Failures
+**Database Connection Failed**
 ```bash
-# Clear node_modules and reinstall
+# Check PostgreSQL status
+systemctl status postgresql  # Linux
+brew services list | grep postgres  # macOS
+
+# Test connection
+psql -h localhost -U homeo_user -d homeo_health
+```
+
+**Build Errors**
+```bash
+# Clear dependencies and reinstall
 rm -rf node_modules package-lock.json
 npm install
 
@@ -191,49 +210,43 @@ npm install
 npm run check
 ```
 
-#### Session Issues
-```bash
-# Verify SESSION_SECRET is set
-echo $SESSION_SECRET
+**Environment Variables Not Loading**
+- Ensure `.env.local` exists in project root
+- Check file permissions
+- Restart development server after changes
+- Use absolute paths for environment file
 
-# Check cookie configuration in browser dev tools
-```
+### Getting Help
 
-### Environment Validation
-The application automatically validates required environment variables on startup and provides helpful error messages for missing configuration.
+1. **Run the test script**: `./test-setup.sh`
+2. **Check logs**: Look for detailed error messages
+3. **Verify prerequisites**: Ensure Node.js 18+ and PostgreSQL
+4. **Database connectivity**: Test database connection separately
+5. **Port conflicts**: Try alternative ports
 
-## Monitoring and Logging
+## Feature Overview
 
-### Development
-- Detailed request logging
-- HMR status updates
-- Database query logging
+Once deployed, the system provides:
 
-### Production
-- Structured logging format
-- Performance metrics
-- Error tracking
+- 👥 **Patient Management**: Complete patient records and medical history
+- 📅 **Appointment Scheduling**: Doctor availability and booking system  
+- 💊 **Medicine Management**: Inventory tracking with low stock alerts
+- 📋 **Prescription System**: Digital prescriptions with professional templates
+- 🤖 **AI Integration**: AI-powered medicine suggestions and prescription assistance
+- 📱 **Mobile Responsive**: Works seamlessly on all devices
+- 🌍 **Multi-language**: English and Bengali language support
+- 👨‍⚕️ **Multi-doctor**: Support for multiple practitioners
+- 🔐 **Secure Access**: Role-based authentication and authorization
+- 📊 **Admin Dashboard**: Complete system administration and reporting
 
-## Scaling Considerations
+## Support
 
-### Database
-- Connection pooling configured based on environment
-- SSL/TLS encryption for cloud databases
-- Automatic reconnection handling
+For deployment issues or questions:
+- Review this deployment guide
+- Run the test setup script
+- Check the troubleshooting section
+- Verify environment configuration
 
-### Application
-- Stateless design for horizontal scaling
-- Session storage can be moved to Redis/PostgreSQL
-- File uploads stored in memory (consider object storage for large scale)
+---
 
-## Backup and Recovery
-
-### Database
-- Regular PostgreSQL backups recommended
-- Schema migrations via Drizzle Kit
-- Point-in-time recovery support
-
-### Application
-- Source code in version control
-- Environment configuration documented
-- Deployment automation recommended
+**Ready to deploy your homeopathy clinic management system!** 🏥

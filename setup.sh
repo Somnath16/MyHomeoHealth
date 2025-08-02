@@ -207,7 +207,7 @@ main() {
         NODE_VERSION=$(node --version)
         print_success "Node.js is already installed: $NODE_VERSION"
         
-        # Check if version is compatible (20.x or higher)
+        # Check if version is compatible (18.x or higher)
         MAJOR_VERSION=$(echo $NODE_VERSION | cut -d'.' -f1 | sed 's/v//')
         if [ "$MAJOR_VERSION" -lt 18 ]; then
             print_warning "Node.js version is too old. Installing newer version..."
@@ -239,7 +239,8 @@ main() {
     
     # Run database migrations
     print_status "Running database setup..."
-    npm run db:push 2>/dev/null || print_warning "Database migration failed - will retry after server start"
+    export DATABASE_URL="$DATABASE_URL"
+    npm run db:push 2>/dev/null || print_warning "Database migration will be attempted when server starts"
     
     # Check port availability
     DEFAULT_PORT=5000

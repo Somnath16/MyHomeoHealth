@@ -1,51 +1,81 @@
 #!/bin/bash
 
 # My Homeo Health - Docker Setup Script
-# Alternative setup using Docker containers
+# Sets up PostgreSQL using Docker for local development
 
 set -e
 
 # Colors
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BLUE}My Homeo Health - Docker Setup${NC}"
-echo "====================================="
-echo ""
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
 
-# Check if Docker is installed
-if ! command -v docker >/dev/null 2>&1; then
-    echo -e "${RED}❌ Docker not found${NC}"
-    echo "Please install Docker Desktop:"
-    echo "  Windows/Mac: https://www.docker.com/products/docker-desktop/"
-    echo "  Linux: https://docs.docker.com/engine/install/"
-    exit 1
-fi
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
 
-# Check if Docker Compose is available
-if ! command -v docker-compose >/dev/null 2>&1; then
-    if ! docker compose version >/dev/null 2>&1; then
-        echo -e "${RED}❌ Docker Compose not found${NC}"
-        echo "Please install Docker Compose"
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+main() {
+    clear
+    echo "================================================"
+    echo "   My Homeo Health - Docker Setup              "
+    echo "================================================"
+    echo ""
+    
+    # Check Docker
+    if ! command_exists docker; then
+        print_error "Docker not found. Please install Docker first."
+        echo "Visit: https://docs.docker.com/get-docker/"
         exit 1
     fi
+    
+    # Check Docker Compose
+    if ! command_exists docker-compose && ! docker compose version >/dev/null 2>&1; then
+        print_error "Docker Compose not found. Please install Docker Compose."
+        exit 1
+    fi
+    
     COMPOSE_CMD="docker compose"
-else
-    COMPOSE_CMD="docker-compose"
-fi
-
-# Create docker-compose.yml
-echo -e "${BLUE}📝 Creating Docker configuration...${NC}"
-cat > docker-compose.yml << 'EOF'
+    if command_exists docker-compose; then
+        COMPOSE_CMD="docker-compose"
+    fi
+    
+    print_success "Docker and Docker Compose found"
+    
+    # Check Node.js
+    if ! command_exists node; then
+        print_error "Node.js not found. Please install Node.js 18+ first."
+        exit 1
+    fi
+    
+    NODE_VERSION=$(node --version)
+    print_success "Node.js: $NODE_VERSION"
+    
+    # Create docker-compose.yml
+    print_status "Creating Docker configuration..."
+    cat > docker-compose.yml << 'EOF'
 version: '3.8'
-
 services:
   postgres:
     image: postgres:15
-    container_name: homeo_postgres
+    container_name: homeo-postgres
     environment:
       POSTGRES_DB: homeo_health
       POSTGRES_USER: homeo_user
@@ -60,113 +90,110 @@ services:
       timeout: 10s
       retries: 3
 
-  app:
-    build: .
-    container_name: homeo_app
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://homeo_user:homeo_password@postgres:5432/homeo_health
-      SESSION_SECRET: your_session_secret_change_this
-      PORT: 5000
-    ports:
-      - "5000:5000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: npm run dev
-
 volumes:
   postgres_data:
 EOF
-
-# Create Dockerfile
-echo -e "${BLUE}🐳 Creating Dockerfile...${NC}"
-cat > Dockerfile << 'EOF'
-FROM node:20-alpine
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy source code
-COPY . .
-
-# Expose port
-EXPOSE 5000
-
-# Start command
-CMD ["npm", "run", "dev"]
-EOF
-
-# Create .dockerignore
-cat > .dockerignore << 'EOF'
-node_modules
-.git
-.env*
-*.log
-npm-debug.log*
-.DS_Store
-dist
-build
-EOF
-
-# Ask for AI configuration
-echo ""
-read -p "Configure AI features? (y/N): " configure_ai
-if [[ $configure_ai =~ ^[Yy]$ ]]; then
-    echo "AI Providers:"
-    echo "1) Google Gemini"
-    echo "2) OpenAI GPT" 
-    echo "3) Anthropic Claude"
-    read -p "Choose (1-3): " ai_choice
     
-    AI_ENV=""
-    case $ai_choice in
-        1)
-            read -p "Gemini API Key: " api_key
-            AI_ENV="GEMINI_API_KEY: $api_key"
-            ;;
-        2)
-            read -p "OpenAI API Key: " api_key
-            AI_ENV="OPENAI_API_KEY: $api_key"
-            ;;
-        3)
-            read -p "Anthropic API Key: " api_key
-            AI_ENV="ANTHROPIC_API_KEY: $api_key"
-            ;;
-    esac
+    # Start PostgreSQL container
+    print_status "Starting PostgreSQL container..."
+    $COMPOSE_CMD up -d postgres
     
-    # Update docker-compose.yml with AI config
-    if [ ! -z "$AI_ENV" ]; then
-        sed -i "/SESSION_SECRET:/a\\      $AI_ENV" docker-compose.yml
+    # Wait for PostgreSQL to be ready
+    print_status "Waiting for PostgreSQL to be ready..."
+    sleep 10
+    
+    # Verify connection
+    for i in {1..30}; do
+        if docker exec homeo-postgres pg_isready -U homeo_user -d homeo_health >/dev/null 2>&1; then
+            print_success "PostgreSQL is ready"
+            break
+        fi
+        if [ $i -eq 30 ]; then
+            print_error "PostgreSQL failed to start"
+            exit 1
+        fi
+        echo -n "."
+        sleep 2
+    done
+    
+    # Install dependencies
+    print_status "Installing Node.js dependencies..."
+    npm install
+    print_success "Dependencies installed"
+    
+    # Create .env.local
+    print_status "Creating environment configuration..."
+    cat > .env.local << EOF
+DATABASE_URL=postgresql://homeo_user:homeo_password@localhost:5432/homeo_health
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=homeo_health
+PGUSER=homeo_user
+PGPASSWORD=homeo_password
+NODE_ENV=development
+SESSION_SECRET=$(openssl rand -base64 32)
+PORT=5000
+VITE_API_URL=http://localhost:5000
+EOF
+    
+    # Optional AI configuration
+    echo ""
+    read -p "Configure AI features? (y/n): " config_ai
+    if [[ $config_ai =~ ^[Yy]$ ]]; then
+        echo "Choose AI provider:"
+        echo "1) Google Gemini"
+        echo "2) OpenAI GPT" 
+        echo "3) Anthropic Claude"
+        read -p "Enter choice (1-3): " ai_choice
+        
+        case $ai_choice in
+            1)
+                read -p "Enter Gemini API Key: " api_key
+                echo "GEMINI_API_KEY=$api_key" >> .env.local
+                ;;
+            2)
+                read -p "Enter OpenAI API Key: " api_key
+                echo "OPENAI_API_KEY=$api_key" >> .env.local
+                ;;
+            3)
+                read -p "Enter Anthropic API Key: " api_key
+                echo "ANTHROPIC_API_KEY=$api_key" >> .env.local
+                ;;
+        esac
     fi
-fi
+    
+    # Initialize database
+    print_status "Initializing database..."
+    source .env.local
+    export DATABASE_URL
+    npm run db:push || print_warning "Database setup will complete on first run"
+    
+    print_success "Docker setup complete!"
+    echo ""
+    echo "================================================"
+    echo "             SETUP COMPLETE!                    "
+    echo "================================================"
+    echo ""
+    echo "📊 Database: PostgreSQL (Docker container)"
+    echo "🌐 Server will run on: http://localhost:5000"
+    echo "👤 Admin login: admin / admin123"
+    echo "🩺 Doctor login: doctor / doctor123"
+    echo ""
+    echo "Docker commands:"
+    echo "  Start database: $COMPOSE_CMD up -d"
+    echo "  Stop database: $COMPOSE_CMD down"
+    echo "  View logs: $COMPOSE_CMD logs postgres"
+    echo ""
+    
+    read -p "Start the application now? (y/n): " start_now
+    if [[ $start_now =~ ^[Yy]$ ]]; then
+        print_status "Starting application..."
+        npm run dev
+    else
+        print_success "Run 'npm run dev' to start the application"
+        echo "Don't forget to start Docker containers: $COMPOSE_CMD up -d"
+    fi
+}
 
-echo -e "${BLUE}🚀 Starting services...${NC}"
-$COMPOSE_CMD up -d postgres
-
-echo -e "${BLUE}⏳ Waiting for database...${NC}"
-sleep 10
-
-echo -e "${BLUE}📦 Building application...${NC}"
-$COMPOSE_CMD build app
-
-echo -e "${BLUE}🎯 Starting application...${NC}"
-$COMPOSE_CMD up
-
-echo -e "${GREEN}✅ Docker setup complete!${NC}"
-echo ""
-echo "🌐 Application: http://localhost:5000"
-echo "🗄️  Database: localhost:5432"
-echo ""
-echo "Commands:"
-echo "  Stop: $COMPOSE_CMD down"
-echo "  Logs: $COMPOSE_CMD logs -f"
-echo "  Shell: $COMPOSE_CMD exec app sh"
+trap 'echo -e "\n\n${RED}Setup interrupted${NC}"; exit 1' INT
+main "$@"

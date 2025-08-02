@@ -198,8 +198,9 @@ echo %GREEN%[SUCCESS]%NC% Environment configuration completed
 REM Run database migrations
 echo.
 echo %BLUE%[INFO]%NC% Running database setup...
+set DATABASE_URL=!DATABASE_URL!
 npm run db:push 2>nul || (
-    echo %YELLOW%[WARNING]%NC% Database migration will be attempted after server start
+    echo %YELLOW%[WARNING]%NC% Database migration will be attempted when server starts
 )
 
 REM Build the project
