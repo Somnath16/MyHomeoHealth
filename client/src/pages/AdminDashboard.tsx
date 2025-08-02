@@ -141,7 +141,23 @@ export default function AdminDashboard() {
   // Fetch all admin users
   const { data: adminsData, isLoading: isLoadingAdmins, error: adminsError } = useQuery({
     queryKey: ['/api/admin/admins'],
-    queryFn: () => apiRequest('GET', '/api/admin/admins'),
+    queryFn: async () => {
+      const response = await fetch('/api/admin/admins', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    },
+    staleTime: 0,
+    gcTime: 0,
   });
   
   // Ensure admins is always an array
