@@ -4,6 +4,12 @@
 
 My Homeo Health is a comprehensive full-stack homeopathy clinic management system. It provides role-based access control, patient and appointment management, prescription handling, and multilingual support (English/Bengali). The project aims to streamline clinic operations and enhance patient care through modern web technologies.
 
+## Recent Updates (August 2025)
+
+- ✅ **Admin Management System**: Complete admin user management with CRUD operations, security controls preventing self-deletion and last admin deletion protection
+- ✅ **Prescription Templates**: Added 10 comprehensive HTML prescription templates for both doctors covering common homeopathic conditions
+- ✅ **Local Setup Scripts**: Created comprehensive setup automation for Windows (setup.bat), Linux/macOS (setup.sh), quick-start (quick-start.sh), and Docker (docker-setup.sh) with full dependency management, database setup, AI configuration, and port management
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

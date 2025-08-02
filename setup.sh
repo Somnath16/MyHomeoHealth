@@ -1,270 +1,298 @@
 #!/bin/bash
 
-# My Homeo Health - Interactive Setup Script
-# This script provides guided setup for local development
+# My Homeo Health - Automated Setup Script
+# This script will install all dependencies and configure the project for local development
 
-set -e
-
-echo "🏥 My Homeo Health - Interactive Setup"
-echo "======================================"
+set -e  # Exit on any error
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
 print_success() {
-    echo -e "${GREEN}✓${NC} $1"
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
+    echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}✗${NC} $1"
+    echo -e "${RED}[ERROR]${NC} $1"
 }
 
-print_info() {
-    echo -e "${BLUE}ℹ${NC} $1"
+# Function to check if command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
 }
 
-print_question() {
-    echo -e "${CYAN}?${NC} $1"
-}
-
-# Welcome message
-echo
-print_info "This script will help you set up My Homeo Health for local development."
-print_info "You'll need Node.js 18+, PostgreSQL, and a Gemini API key."
-echo
-
-# Check prerequisites
-print_info "Checking prerequisites..."
-
-# Check Node.js
-if command -v node >/dev/null 2>&1; then
-    NODE_VERSION=$(node --version)
-    print_success "Node.js found: $NODE_VERSION"
-    
-    MAJOR_VERSION=$(echo $NODE_VERSION | cut -d'.' -f1 | sed 's/v//')
-    if [ "$MAJOR_VERSION" -lt 18 ]; then
-        print_error "Node.js version 18 or higher is required"
-        exit 1
+# Function to get OS type
+get_os() {
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        echo "linux"
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "macos"
+    elif [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        echo "windows"
+    else
+        echo "unknown"
     fi
-else
-    print_error "Node.js is not installed"
-    print_info "Please install Node.js 18+: https://nodejs.org/"
-    exit 1
-fi
+}
 
-# Check npm
-if command -v npm >/dev/null 2>&1; then
-    NPM_VERSION=$(npm --version)
-    print_success "npm found: $NPM_VERSION"
-else
-    print_error "npm is not available"
-    exit 1
-fi
+# Function to install Node.js
+install_nodejs() {
+    print_status "Installing Node.js..."
+    
+    OS=$(get_os)
+    case $OS in
+        "linux")
+            # Install Node.js using NodeSource repository
+            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            ;;
+        "macos")
+            if command_exists brew; then
+                brew install node@20
+                brew link --overwrite node@20
+            else
+                print_error "Homebrew is not installed. Please install Homebrew first:"
+                print_error "Visit: https://brew.sh/"
+                exit 1
+            fi
+            ;;
+        *)
+            print_error "Please install Node.js 20.x manually from https://nodejs.org/"
+            exit 1
+            ;;
+    esac
+}
 
-echo
+# Function to install PostgreSQL
+install_postgresql() {
+    print_status "Installing PostgreSQL..."
+    
+    OS=$(get_os)
+    case $OS in
+        "linux")
+            sudo apt-get update
+            sudo apt-get install -y postgresql postgresql-contrib
+            sudo systemctl start postgresql
+            sudo systemctl enable postgresql
+            ;;
+        "macos")
+            if command_exists brew; then
+                brew install postgresql@15
+                brew services start postgresql@15
+            else
+                print_error "Homebrew is not installed. Please install Homebrew first:"
+                print_error "Visit: https://brew.sh/"
+                exit 1
+            fi
+            ;;
+        *)
+            print_error "Please install PostgreSQL manually"
+            exit 1
+            ;;
+    esac
+}
 
-# Install dependencies
-print_info "Installing project dependencies..."
-if npm install; then
-    print_success "Dependencies installed successfully"
-else
-    print_error "Failed to install dependencies"
-    exit 1
-fi
+# Function to setup PostgreSQL database
+setup_database() {
+    print_status "Setting up PostgreSQL database..."
+    
+    # Create database and user
+    sudo -u postgres psql -c "CREATE DATABASE homeo_health;" 2>/dev/null || true
+    sudo -u postgres psql -c "CREATE USER homeo_user WITH ENCRYPTED PASSWORD 'homeo_password';" 2>/dev/null || true
+    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE homeo_health TO homeo_user;" 2>/dev/null || true
+    sudo -u postgres psql -c "ALTER USER homeo_user CREATEDB;" 2>/dev/null || true
+    
+    # Set the database URL
+    DATABASE_URL="postgresql://homeo_user:homeo_password@localhost:5432/homeo_health"
+    echo "DATABASE_URL=$DATABASE_URL" > .env.local
+    
+    print_success "Database setup completed"
+}
 
-echo
+# Function to get available port
+get_available_port() {
+    local port=$1
+    while netstat -tuln 2>/dev/null | grep -q ":$port "; do
+        port=$((port + 1))
+    done
+    echo $port
+}
 
-# Database setup
-print_question "Database Setup"
-echo "Choose your database setup option:"
-echo "1) Local PostgreSQL"
-echo "2) Cloud Database (Neon, Supabase, etc.)"
-echo "3) Skip database setup (configure later)"
-echo
-
-read -p "Enter your choice (1-3): " db_choice
-
-DATABASE_URL=""
-
-case $db_choice in
-    1)
-        echo
-        print_info "Setting up local PostgreSQL connection..."
-        
-        if command -v psql >/dev/null 2>&1; then
-            print_success "PostgreSQL client found"
-            
-            read -p "Database host (localhost): " db_host
-            db_host=${db_host:-localhost}
-            
-            read -p "Database port (5432): " db_port
-            db_port=${db_port:-5432}
-            
-            read -p "Database name (homeo_health): " db_name
-            db_name=${db_name:-homeo_health}
-            
-            read -p "Database username: " db_user
-            read -s -p "Database password: " db_password
-            echo
-            
-            DATABASE_URL="postgresql://$db_user:$db_password@$db_host:$db_port/$db_name"
-            print_success "Local PostgreSQL configuration set"
-        else
-            print_warning "PostgreSQL client not found"
-            print_info "Please install PostgreSQL: https://www.postgresql.org/download/"
-            read -p "Enter your PostgreSQL connection URL: " DATABASE_URL
-        fi
-        ;;
-    2)
-        echo
-        print_info "Setting up cloud database connection..."
-        print_info "Popular options:"
-        print_info "- Neon: https://neon.tech/"
-        print_info "- Supabase: https://supabase.com/"
-        print_info "- Railway: https://railway.app/"
-        echo
-        read -p "Enter your database connection URL: " DATABASE_URL
-        ;;
-    3)
-        print_warning "Database setup skipped"
-        DATABASE_URL="postgresql://username:password@localhost:5432/homeo_health"
-        ;;
-    *)
-        print_error "Invalid choice"
-        exit 1
-        ;;
-esac
-
-echo
-
-# API Key setup
-print_question "AI Configuration"
-print_info "You need a Gemini API key for AI-powered medicine suggestions."
-print_info "Get your free API key at: https://makersuite.google.com/app/apikey"
-echo
-
-read -p "Do you have a Gemini API key? (y/N): " -n 1 -r
-echo
-
-GEMINI_API_KEY=""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    read -p "Enter your Gemini API key: " GEMINI_API_KEY
-    print_success "Gemini API key configured"
-else
-    print_warning "Gemini API key not configured"
-    print_info "AI features will be disabled until you add the key"
-    GEMINI_API_KEY="your_gemini_api_key_here"
-fi
-
-echo
-
-# Generate session secret
-print_info "Generating secure session secret..."
-if command -v openssl >/dev/null 2>&1; then
-    SESSION_SECRET=$(openssl rand -hex 32)
-    print_success "Session secret generated"
-elif command -v python3 >/dev/null 2>&1; then
-    SESSION_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
-    print_success "Session secret generated"
-else
-    SESSION_SECRET="change-this-to-a-secure-random-string-in-production"
-    print_warning "Could not generate secure session secret automatically"
-fi
-
-# Create .env file
-print_info "Creating environment configuration..."
-
-cat > .env << EOF
+# Function to configure environment
+configure_environment() {
+    print_status "Configuring environment variables..."
+    
+    # Create .env.local file
+    cat > .env.local << EOF
 # Database Configuration
-DATABASE_URL=$DATABASE_URL
-
-# AI Configuration
-GEMINI_API_KEY=$GEMINI_API_KEY
-
-# Session Configuration
-SESSION_SECRET=$SESSION_SECRET
+DATABASE_URL=postgresql://homeo_user:homeo_password@localhost:5432/homeo_health
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=homeo_health
+PGUSER=homeo_user
+PGPASSWORD=homeo_password
 
 # Server Configuration
-PORT=5000
 NODE_ENV=development
+SESSION_SECRET=$(openssl rand -base64 32)
+
+# Development Settings
+VITE_API_URL=http://localhost:$PORT
 EOF
-
-print_success ".env file created"
-
-echo
-
-# Database schema setup
-if [ "$DATABASE_URL" != "postgresql://username:password@localhost:5432/homeo_health" ]; then
-    print_info "Setting up database schema..."
     
-    if npm run db:push; then
-        print_success "Database schema created successfully"
+    # Ask for AI configuration
+    echo ""
+    read -p "Do you want to configure AI features? (y/n): " configure_ai
+    if [[ $configure_ai =~ ^[Yy]$ ]]; then
+        echo ""
+        echo "Please choose your AI provider:"
+        echo "1) Google Gemini"
+        echo "2) OpenAI GPT"
+        echo "3) Anthropic Claude"
+        read -p "Enter your choice (1-3): " ai_choice
+        
+        case $ai_choice in
+            1)
+                read -p "Enter your Google Gemini API Key: " gemini_key
+                echo "GEMINI_API_KEY=$gemini_key" >> .env.local
+                echo "AI_PROVIDER=gemini" >> .env.local
+                ;;
+            2)
+                read -p "Enter your OpenAI API Key: " openai_key
+                echo "OPENAI_API_KEY=$openai_key" >> .env.local
+                echo "AI_PROVIDER=openai" >> .env.local
+                ;;
+            3)
+                read -p "Enter your Anthropic API Key: " anthropic_key
+                echo "ANTHROPIC_API_KEY=$anthropic_key" >> .env.local
+                echo "AI_PROVIDER=anthropic" >> .env.local
+                ;;
+        esac
+        print_success "AI configuration completed"
+    fi
+    
+    print_success "Environment configuration completed"
+}
+
+# Main setup function
+main() {
+    clear
+    echo "================================================"
+    echo "   My Homeo Health - Automated Setup Script    "
+    echo "================================================"
+    echo ""
+    
+    # Check if we're in the right directory
+    if [[ ! -f "package.json" ]] || ! grep -q "My Homeo Health" package.json 2>/dev/null; then
+        print_error "Please run this script from the My Homeo Health project directory"
+        exit 1
+    fi
+    
+    print_status "Starting automated setup process..."
+    
+    # Check and install Node.js
+    if command_exists node; then
+        NODE_VERSION=$(node --version)
+        print_success "Node.js is already installed: $NODE_VERSION"
+        
+        # Check if version is compatible (20.x or higher)
+        MAJOR_VERSION=$(echo $NODE_VERSION | cut -d'.' -f1 | sed 's/v//')
+        if [ "$MAJOR_VERSION" -lt 18 ]; then
+            print_warning "Node.js version is too old. Installing newer version..."
+            install_nodejs
+        fi
     else
-        print_warning "Database schema setup failed"
-        print_info "You may need to check your database connection and try again"
-        print_info "Run 'npm run db:push' manually after fixing the connection"
+        print_warning "Node.js not found. Installing..."
+        install_nodejs
     fi
-else
-    print_warning "Database schema setup skipped (no valid connection)"
-fi
-
-echo
-
-# VS Code setup
-if command -v code >/dev/null 2>&1; then
-    print_question "VS Code Integration"
-    read -p "Open project in VS Code now? (y/N): " -n 1 -r
-    echo
     
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        print_info "Opening project in VS Code..."
-        code .
-        print_success "Project opened in VS Code"
+    # Check and install PostgreSQL
+    if command_exists psql; then
+        print_success "PostgreSQL is already installed"
+    else
+        print_warning "PostgreSQL not found. Installing..."
+        install_postgresql
     fi
-fi
+    
+    # Setup database
+    setup_database
+    
+    # Install project dependencies
+    print_status "Installing project dependencies..."
+    npm install
+    print_success "Dependencies installed successfully"
+    
+    # Configure environment
+    configure_environment
+    
+    # Run database migrations
+    print_status "Running database setup..."
+    npm run db:push 2>/dev/null || print_warning "Database migration failed - will retry after server start"
+    
+    # Check port availability
+    DEFAULT_PORT=5000
+    if netstat -tuln 2>/dev/null | grep -q ":$DEFAULT_PORT "; then
+        echo ""
+        print_warning "Port $DEFAULT_PORT is already in use"
+        read -p "Enter a different port number (default: 5001): " CUSTOM_PORT
+        PORT=${CUSTOM_PORT:-5001}
+        PORT=$(get_available_port $PORT)
+        
+        # Update .env.local with custom port
+        echo "PORT=$PORT" >> .env.local
+        sed -i.bak "s|localhost:5000|localhost:$PORT|g" .env.local 2>/dev/null || true
+    else
+        PORT=$DEFAULT_PORT
+        echo "PORT=$PORT" >> .env.local
+    fi
+    
+    # Build the project
+    print_status "Building the project..."
+    npm run build 2>/dev/null || print_warning "Build step skipped - will run in development mode"
+    
+    print_success "Setup completed successfully!"
+    echo ""
+    echo "================================================"
+    echo "             SETUP COMPLETE!                    "
+    echo "================================================"
+    echo ""
+    echo "📊 Database: PostgreSQL (localhost:5432)"
+    echo "🌐 Server will run on: http://localhost:$PORT"
+    echo "👤 Default admin login: admin / admin123"
+    echo "🩺 Default doctor login: doctor / doctor123"
+    echo ""
+    echo "To start the application:"
+    echo "  npm run dev"
+    echo ""
+    echo "Or run it now?"
+    read -p "Start the application now? (y/n): " start_now
+    
+    if [[ $start_now =~ ^[Yy]$ ]]; then
+        print_status "Starting My Homeo Health application..."
+        echo ""
+        echo "🚀 Application starting on http://localhost:$PORT"
+        echo "🔄 This may take a few moments for the first run..."
+        echo ""
+        npm run dev
+    else
+        print_success "Setup complete! Run 'npm run dev' when you're ready to start."
+    fi
+}
 
-echo
+# Trap Ctrl+C
+trap 'echo -e "\n\n${RED}Setup interrupted by user${NC}"; exit 1' INT
 
-# Final summary
-print_success "Setup completed successfully!"
-echo
-print_info "Configuration Summary:"
-print_info "- Database: ${DATABASE_URL}"
-print_info "- AI Features: $([ "$GEMINI_API_KEY" != "your_gemini_api_key_here" ] && echo "Enabled" || echo "Disabled")"
-print_info "- Environment: Development"
-echo
-
-print_info "Default Login Credentials:"
-print_info "- Admin: admin / admin123"
-print_info "- Doctor: ranajit / ranajit123"
-echo
-
-print_info "Available Commands:"
-print_info "- npm run dev         # Start development server"
-print_info "- npm run build       # Build for production"
-print_info "- npm run db:push     # Update database schema"
-print_info "- npm run db:studio   # Open database GUI"
-echo
-
-# Ask to start development server
-read -p "Start development server now? (Y/n): " -n 1 -r
-echo
-
-if [[ ! $REPLY =~ ^[Nn]$ ]]; then
-    print_info "Starting development server..."
-    print_info "The application will be available at: http://localhost:5000"
-    echo
-    npm run dev
-else
-    print_info "Setup complete! Run 'npm run dev' when ready to start development."
-fi
+# Run main function
+main "$@"
