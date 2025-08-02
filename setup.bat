@@ -26,8 +26,8 @@ if not exist "package.json" (
     exit /b 1
 )
 
-findstr /C:"My Homeo Health" package.json >nul
-if errorlevel 1 (
+REM Check if essential files exist to confirm this is the right project
+if not exist "client" (
     echo %RED%[ERROR]%NC% Please run this script from the My Homeo Health project directory
     pause
     exit /b 1

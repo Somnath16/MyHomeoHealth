@@ -195,7 +195,7 @@ main() {
     echo ""
     
     # Check if we're in the right directory
-    if [[ ! -f "package.json" ]] || ! grep -q "My Homeo Health" package.json 2>/dev/null; then
+    if [[ ! -f "package.json" ]] || [[ ! -d "client" ]] || [[ ! -d "server" ]]; then
         print_error "Please run this script from the My Homeo Health project directory"
         exit 1
     fi
