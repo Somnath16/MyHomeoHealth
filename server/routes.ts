@@ -1219,6 +1219,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin user management routes
+  app.get("/api/admin/admins", requireAuth, requireRole(['admin']), async (req, res) => {
+    try {
+      const admins = await db.select().from(schema.users).where(eq(schema.users.role, 'admin'));
+      const result = admins.map(admin => ({
+        id: admin.id,
+        name: admin.name,
+        username: admin.username,
+        email: admin.email,
+        createdAt: admin.createdAt,
+        isActive: admin.isActive !== false
+      }));
+      res.json(result);
+    } catch (error) {
+      console.error('Admin fetch admins error:', error);
+      res.status(500).json({ message: "Failed to fetch admin users" });
+    }
+  });
+
+  app.post("/api/admin/admins", requireAuth, requireRole(['admin']), async (req, res) => {
+    try {
+      const userData = insertUserSchema.parse({
+        ...req.body,
+        role: 'admin'
+      });
+      
+      const newAdmin = await storage.createUser(userData);
+      res.json({
+        id: newAdmin.id,
+        name: newAdmin.name,
+        username: newAdmin.username,
+        email: newAdmin.email,
+        createdAt: newAdmin.createdAt,
+        isActive: newAdmin.isActive
+      });
+    } catch (error) {
+      console.error('Admin create admin error:', error);
+      if (error.message.includes('duplicate key')) {
+        res.status(400).json({ message: "Username already exists" });
+      } else {
+        res.status(500).json({ message: "Failed to create admin user" });
+      }
+    }
+  });
+
+  app.patch("/api/admin/admins/:id", requireAuth, requireRole(['admin']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      // Prevent admin from deactivating themselves
+      if (id === req.session.userId && updateData.isActive === false) {
+        return res.status(400).json({ message: "Cannot deactivate your own admin account" });
+      }
+      
+      // Remove password if empty
+      if (updateData.password === "") {
+        delete updateData.password;
+      }
+      
+      const updatedAdmin = await storage.updateUser(id, updateData);
+      if (!updatedAdmin) {
+        return res.status(404).json({ message: "Admin user not found" });
+      }
+      
+      res.json({
+        id: updatedAdmin.id,
+        name: updatedAdmin.name,
+        username: updatedAdmin.username,
+        email: updatedAdmin.email,
+        createdAt: updatedAdmin.createdAt,
+        isActive: updatedAdmin.isActive
+      });
+    } catch (error) {
+      console.error('Admin update admin error:', error);
+      res.status(500).json({ message: "Failed to update admin user" });
+    }
+  });
+
+  app.delete("/api/admin/admins/:id", requireAuth, requireRole(['admin']), async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Prevent admin from deleting themselves
+      if (id === req.session.userId) {
+        return res.status(400).json({ message: "Cannot delete your own admin account" });
+      }
+      
+      // Check if there are other active admins
+      const activeAdmins = await db.select().from(schema.users)
+        .where(eq(schema.users.role, 'admin'))
+        .where(eq(schema.users.isActive, true));
+      
+      if (activeAdmins.length <= 1) {
+        return res.status(400).json({ message: "Cannot delete the last active admin user" });
+      }
+      
+      const success = await storage.deleteUser(id);
+      if (!success) {
+        return res.status(404).json({ message: "Admin user not found" });
+      }
+      
+      res.json({ message: "Admin user deleted successfully" });
+    } catch (error) {
+      console.error('Admin delete admin error:', error);
+      res.status(500).json({ message: "Failed to delete admin user" });
+    }
+  });
+
   app.delete("/api/admin/doctors/:id", requireAuth, requireRole(['admin']), async (req, res) => {
     try {
       const { id } = req.params;
