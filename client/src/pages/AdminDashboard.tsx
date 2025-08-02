@@ -1147,7 +1147,7 @@ export default function AdminDashboard() {
                 </div>
               ) : !admins || admins.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  No admin users found. (Debug: {JSON.stringify({ admins: admins?.length, loading: isLoadingAdmins, error: adminsError?.message })})
+                  No admin users found.
                 </div>
               ) : (
                 admins.map((admin: any) => (
