@@ -17,11 +17,12 @@ export const pool = new Pool({
   ssl: config.database.ssl,
   max: config.database.maxConnections,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-  // Add error handling for connection issues
-  onError: (err) => {
-    console.error('Database pool error:', err);
-  }
+  connectionTimeoutMillis: 5000
+});
+
+// Add error handling for connection issues
+pool.on('error', (err: Error) => {
+  console.error('Database pool error:', err);
 });
 
 export const db = drizzle({ client: pool, schema });
