@@ -148,7 +148,14 @@ export default function AdminDashboard() {
   const admins = Array.isArray(adminsData) ? adminsData : [];
   
   // Debug logging for admin data
-  console.log('Admin Data Debug:', { adminsData, admins, isLoadingAdmins, adminsError });
+  console.log('Admin Data Debug:', { 
+    adminsData, 
+    admins, 
+    adminsLength: admins?.length, 
+    isArray: Array.isArray(admins),
+    isLoadingAdmins, 
+    adminsError 
+  });
 
   const doctorForm = useForm<DoctorFormData>({
     resolver: zodResolver(doctorFormSchema),
@@ -1124,7 +1131,7 @@ export default function AdminDashboard() {
                 </div>
               ) : !admins || admins.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  No admin users found.
+                  No admin users found. (Debug: {JSON.stringify({ admins: admins?.length, loading: isLoadingAdmins, error: adminsError?.message })})
                 </div>
               ) : (
                 admins.map((admin: any) => (
