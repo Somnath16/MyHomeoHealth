@@ -124,15 +124,77 @@ if "!USE_CLOUD_DB!"=="true" (
     REM Setup local PostgreSQL database
     echo %BLUE%[INFO]%NC% Setting up local PostgreSQL database...
     echo.
-    set /p PG_DATABASE="Enter database name (default: myhomeohealth): "
-    if "!PG_DATABASE!"=="" set PG_DATABASE=myhomeohealth
+    echo %BLUE%[INFO]%NC% Available PostgreSQL databases:
+    echo.
     
-    echo %BLUE%[INFO]%NC% Checking if database '!PG_DATABASE!' exists...
+    REM Show existing databases
+    echo Existing databases:
+    set counter=1
+    for /f "tokens=1 delims=|" %%i in ('psql -lqt 2^>nul') do (
+        set "db_name=%%i"
+        set "db_name=!db_name: =!"
+        if not "!db_name!"=="template0" if not "!db_name!"=="template1" if not "!db_name!"=="postgres" if not "!db_name!"=="" (
+            echo   !counter!^) !db_name!
+            set "db_array[!counter!]=!db_name!"
+            set /a counter+=1
+        )
+    )
+    echo   !counter!^) Create new database
+    echo.
     
-    REM Check if database exists
-    psql -lqt | findstr /C:"!PG_DATABASE!" >nul 2>&1
-    if errorlevel 1 (
-        echo %BLUE%[INFO]%NC% Database '!PG_DATABASE!' not found. Creating new database...
+    :db_selection
+    set /p db_choice="Select database (1-!counter!) or enter custom name: "
+    
+    REM Check if it's a number
+    echo !db_choice! | findstr /r "^[0-9][0-9]*$" >nul
+    if not errorlevel 1 (
+        if !db_choice! geq 1 if !db_choice! lss !counter! (
+            REM Selected existing database
+            call set PG_DATABASE=%%db_array[!db_choice!]%%
+            set db_exists=true
+            goto db_selected
+        ) else if !db_choice! equ !counter! (
+            REM Create new database
+            set /p PG_DATABASE="Enter new database name (default: myhomeohealth): "
+            if "!PG_DATABASE!"=="" set PG_DATABASE=myhomeohealth
+            set db_exists=false
+            goto db_selected
+        ) else (
+            echo %RED%[ERROR]%NC% Invalid selection. Please choose 1-!counter!
+            goto db_selection
+        )
+    ) else (
+        REM Custom database name entered
+        set PG_DATABASE=!db_choice!
+        REM Check if this custom name exists
+        psql -lqt | findstr /C:"!PG_DATABASE!" >nul 2>&1
+        if not errorlevel 1 (
+            set db_exists=true
+        ) else (
+            set db_exists=false
+        )
+        goto db_selected
+    )
+    
+    :db_selected
+    if "!db_exists!"=="true" (
+        echo %GREEN%[SUCCESS]%NC% Using existing database '!PG_DATABASE!'
+    ) else (
+        echo %BLUE%[INFO]%NC% Will create new database '!PG_DATABASE!'
+    )
+    
+    REM Process based on database existence
+    if "!db_exists!"=="true" (
+        echo.
+        echo %BLUE%[INFO]%NC% Please provide credentials for existing database:
+        set /p PG_USER="PostgreSQL username: "
+        set /p PG_PASSWORD="PostgreSQL password: "
+        set /p PG_HOST="PostgreSQL host (default: localhost): "
+        if "!PG_HOST!"=="" set PG_HOST=localhost
+        set /p PG_PORT="PostgreSQL port (default: 5432): "
+        if "!PG_PORT!"=="" set PG_PORT=5432
+    ) else (
+        echo %BLUE%[INFO]%NC% Creating new database '!PG_DATABASE!'...
         set PG_USER=homeo_user
         
         REM Generate a simple password
@@ -160,17 +222,6 @@ if "!USE_CLOUD_DB!"=="true" (
         echo Port: !PG_PORT! >> .database-info.txt
         
         echo %YELLOW%[WARNING]%NC% Database credentials saved to .database-info.txt
-        
-    ) else (
-        echo %GREEN%[SUCCESS]%NC% Database '!PG_DATABASE!' already exists
-        echo.
-        echo %BLUE%[INFO]%NC% Please provide credentials for existing database:
-        set /p PG_USER="PostgreSQL username: "
-        set /p PG_PASSWORD="PostgreSQL password: "
-        set /p PG_HOST="PostgreSQL host (default: localhost): "
-        if "!PG_HOST!"=="" set PG_HOST=localhost
-        set /p PG_PORT="PostgreSQL port (default: 5432): "
-        if "!PG_PORT!"=="" set PG_PORT=5432
     )
     
     set DATABASE_URL=postgresql://!PG_USER!:!PG_PASSWORD!@!PG_HOST!:!PG_PORT!/!PG_DATABASE!

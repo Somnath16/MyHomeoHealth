@@ -108,17 +108,76 @@ install_postgresql() {
 setup_database() {
     print_status "Setting up PostgreSQL database..."
     
-    # Ask for database name
+    # Show existing databases
     echo ""
-    read -p "Enter database name (default: myhomeohealth): " db_name
-    if [[ -z "$db_name" ]]; then
-        db_name="myhomeohealth"
+    print_status "Available PostgreSQL databases:"
+    echo ""
+    
+    # Get list of databases (excluding system databases)
+    existing_dbs=$(psql -lqt 2>/dev/null | cut -d \| -f 1 | grep -v -E '^\s*(template[01]|postgres)\s*$' | sed 's/^ *//g' | sed 's/ *$//g' | grep -v '^$' | sort)
+    
+    if [[ -n "$existing_dbs" ]]; then
+        echo "Existing databases:"
+        counter=1
+        declare -a db_array
+        while IFS= read -r db; do
+            echo "  $counter) $db"
+            db_array[$counter]="$db"
+            ((counter++))
+        done <<< "$existing_dbs"
+        echo "  $counter) Create new database"
+        echo ""
+        
+        while true; do
+            read -p "Select database (1-$counter) or enter custom name: " db_choice
+            
+            # Check if it's a number
+            if [[ "$db_choice" =~ ^[0-9]+$ ]]; then
+                if [[ $db_choice -ge 1 && $db_choice -lt $counter ]]; then
+                    # Selected existing database
+                    db_name="${db_array[$db_choice]}"
+                    db_exists=true
+                    break
+                elif [[ $db_choice -eq $counter ]]; then
+                    # Create new database
+                    read -p "Enter new database name (default: myhomeohealth): " db_name
+                    if [[ -z "$db_name" ]]; then
+                        db_name="myhomeohealth"
+                    fi
+                    db_exists=false
+                    break
+                else
+                    print_error "Invalid selection. Please choose 1-$counter"
+                fi
+            else
+                # Custom database name entered
+                db_name="$db_choice"
+                # Check if this custom name exists
+                if echo "$existing_dbs" | grep -qw "$db_name"; then
+                    db_exists=true
+                else
+                    db_exists=false
+                fi
+                break
+            fi
+        done
+    else
+        print_warning "No existing databases found or unable to list databases"
+        read -p "Enter database name (default: myhomeohealth): " db_name
+        if [[ -z "$db_name" ]]; then
+            db_name="myhomeohealth"
+        fi
+        db_exists=false
     fi
     
-    # Check if database exists
-    print_status "Checking if database '$db_name' exists..."
+    # Check database existence based on selection
+    if [[ "$db_exists" == "true" ]]; then
+        print_success "Using existing database '$db_name'"
+    else
+        print_status "Will create new database '$db_name'"
+    fi
     
-    if psql -lqt | cut -d \| -f 1 | grep -qw "$db_name" 2>/dev/null; then
+    if [[ "$db_exists" == "true" ]]; then
         print_success "Database '$db_name' already exists"
         
         # Ask for existing credentials
