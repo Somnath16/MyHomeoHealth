@@ -33,7 +33,14 @@ const doctorFormSchema = z.object({
 
 type DoctorFormData = z.infer<typeof doctorFormSchema>;
 
-// Admin form schema removed - now handled elsewhere
+const adminFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email().optional().or(z.literal("")),
+});
+
+type AdminFormData = z.infer<typeof adminFormSchema>;
 
 const medicineFormSchema = z.object({
   name: z.string().min(1, "Medicine name is required"),
@@ -170,11 +177,62 @@ export default function AdminDashboard() {
     },
   });
 
-  // Admin form removed - editing handled via inline interface
+  const adminForm = useForm<AdminFormData>({
+    resolver: zodResolver(adminFormSchema),
+    defaultValues: {
+      name: "",
+      username: "",
+      password: "",
+      email: "",
+    },
+  });
 
-  // Admin creation removed - handled via separate admin management interface
+  // State for admin management
+  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
 
-  // Admin update functionality simplified for inline editing
+  // Admin mutations
+  const addAdminMutation = useMutation({
+    mutationFn: (data: AdminFormData) => apiRequest('POST', '/api/admin/admins', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/admins'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
+      setShowAddAdminModal(false);
+      adminForm.reset();
+      toast({
+        title: "Success",
+        description: "Admin user created successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to create admin user",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateAdminMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<AdminFormData> }) =>
+      apiRequest('PUT', `/api/admin/admins/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/admins'] });
+      setEditingAdmin(null);
+      setShowAddAdminModal(false);
+      adminForm.reset();
+      toast({
+        title: "Success",
+        description: "Admin user updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to update admin user",
+        variant: "destructive",
+      });
+    },
+  });
 
   const deleteAdminMutation = useMutation({
     mutationFn: (id: string) => apiRequest('DELETE', `/api/admin/admins/${id}`),
@@ -362,6 +420,15 @@ export default function AdminDashboard() {
     }
   };
 
+  const onSubmitAdmin = (data: AdminFormData) => {
+    if (editingAdmin) {
+      updateAdminMutation.mutate({ id: editingAdmin.id, data });
+    } else {
+      // Add role as admin for new users
+      addAdminMutation.mutate({ ...data, role: 'admin' } as any);
+    }
+  };
+
   const onSubmitMedicine = (data: MedicineFormData) => {
     if (editingMedicine) {
       updateMedicineMutation.mutate({ id: editingMedicine.id, data });
@@ -413,7 +480,16 @@ export default function AdminDashboard() {
     }
   };
 
-  // Admin editing simplified - no longer uses modal
+  const handleEditAdmin = (admin: any) => {
+    setEditingAdmin(admin);
+    adminForm.reset({
+      name: admin.name,
+      username: admin.username,
+      password: "", // Password field left blank for security
+      email: admin.email || "",
+    });
+    setShowAddAdminModal(true);
+  };
 
   const handleDeleteAdmin = (admin: any) => {
     if (window.confirm(`Are you sure you want to delete admin user ${admin.name}? This action cannot be undone.`)) {
@@ -1026,11 +1102,9 @@ export default function AdminDashboard() {
               <h2 className="text-lg font-semibold">Admin Users Management</h2>
               <Button 
                 onClick={() => {
-                  // Add new admin functionality can be implemented here
-                  toast({
-                    title: "Coming Soon",
-                    description: "Add new admin functionality will be implemented in the next update",
-                  });
+                  setEditingAdmin(null);
+                  adminForm.reset();
+                  setShowAddAdminModal(true);
                 }}
                 className="flex items-center gap-2"
               >
@@ -1074,15 +1148,8 @@ export default function AdminDashboard() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => {
-                            // Simple inline editing could be added here
-                            toast({
-                              title: "Info",
-                              description: "Admin editing functionality moved to dedicated interface",
-                            });
-                          }}
-                          title="Admin details (read-only)"
-                          disabled
+                          onClick={() => handleEditAdmin(admin)}
+                          title="Edit admin user"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -1111,6 +1178,111 @@ export default function AdminDashboard() {
             <AdminTemplateManagement />
           </TabsContent>
         </Tabs>
+
+        {/* Admin Management Modal */}
+        <Dialog open={showAddAdminModal} onOpenChange={setShowAddAdminModal}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>
+                {editingAdmin ? 'Edit Admin User' : 'Add New Admin User'}
+              </DialogTitle>
+              <DialogDescription>
+                {editingAdmin 
+                  ? 'Update admin user information. Leave password blank to keep current password.'
+                  : 'Create a new admin user with access to system management.'
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <Form {...adminForm}>
+                <form onSubmit={adminForm.handleSubmit(onSubmitAdmin)} className="space-y-4">
+                  <FormField
+                    control={adminForm.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={adminForm.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="johndoe" 
+                            {...field} 
+                            disabled={editingAdmin?.username === 'admin'}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                        {editingAdmin?.username === 'admin' && (
+                          <p className="text-xs text-muted-foreground">
+                            Main admin username cannot be changed
+                          </p>
+                        )}
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={adminForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Password {editingAdmin && '(leave blank to keep current)'}
+                        </FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="password" 
+                            placeholder={editingAdmin ? "Leave blank to keep current" : "Enter password"} 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={adminForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email (Optional)</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="john@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex justify-end space-x-2 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowAddAdminModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={addAdminMutation.isPending || updateAdminMutation.isPending}
+                    >
+                      {editingAdmin ? 'Update Admin' : 'Add Admin'}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
