@@ -264,18 +264,41 @@ if /i "!configure_ai!"=="y" (
     echo %GREEN%[SUCCESS]%NC% AI configuration completed
 )
 
-REM Check port availability
+REM Configure port
+echo.
+echo %BLUE%[INFO]%NC% Configuring server port...
+
 set DEFAULT_PORT=5000
+echo Current default port: !DEFAULT_PORT!
+
+REM Check if default port is in use
 netstat -an | findstr ":!DEFAULT_PORT!" >nul
 if not errorlevel 1 (
-    echo.
     echo %YELLOW%[WARNING]%NC% Port !DEFAULT_PORT! is already in use
-    set /p CUSTOM_PORT="Enter a different port number (press Enter for 5001): "
+    echo Available ports: 5001, 5002, 3000, 8000, 8080
+    set /p CUSTOM_PORT="Enter port number (default: 5001): "
     if "!CUSTOM_PORT!"=="" set CUSTOM_PORT=5001
     set PORT=!CUSTOM_PORT!
 ) else (
-    set PORT=!DEFAULT_PORT!
+    set /p USER_PORT="Enter port number (default: !DEFAULT_PORT!): "
+    if "!USER_PORT!"=="" (
+        set PORT=!DEFAULT_PORT!
+    ) else (
+        set PORT=!USER_PORT!
+    )
 )
+
+REM Validate port number (basic validation)
+if !PORT! lss 1024 (
+    echo %YELLOW%[WARNING]%NC% Port number too low. Using default port 5000
+    set PORT=5000
+)
+if !PORT! gtr 65535 (
+    echo %YELLOW%[WARNING]%NC% Port number too high. Using default port 5000
+    set PORT=5000
+)
+
+echo %GREEN%[SUCCESS]%NC% Server will run on port: !PORT!
 
 echo PORT=!PORT! >> .env.local
 echo VITE_API_URL=http://localhost:!PORT! >> .env.local

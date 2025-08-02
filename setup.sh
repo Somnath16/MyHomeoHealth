@@ -407,22 +407,37 @@ main() {
         print_warning "DATABASE_URL not set. Please check .env.local file"
     fi
     
-    # Check port availability
+    # Configure port
+    echo ""
+    print_status "Configuring server port..."
+    
     DEFAULT_PORT=5000
+    echo "Current default port: $DEFAULT_PORT"
+    
+    # Check if default port is in use
     if netstat -tuln 2>/dev/null | grep -q ":$DEFAULT_PORT "; then
-        echo ""
         print_warning "Port $DEFAULT_PORT is already in use"
-        read -p "Enter a different port number (default: 5001): " CUSTOM_PORT
+        echo "Available ports: 5001, 5002, 3000, 8000, 8080"
+        read -p "Enter port number (default: 5001): " CUSTOM_PORT
         PORT=${CUSTOM_PORT:-5001}
-        PORT=$(get_available_port $PORT)
-        
-        # Update .env.local with custom port
-        echo "PORT=$PORT" >> .env.local
-        sed -i.bak "s|localhost:5000|localhost:$PORT|g" .env.local 2>/dev/null || true
     else
-        PORT=$DEFAULT_PORT
-        echo "PORT=$PORT" >> .env.local
+        read -p "Enter port number (default: $DEFAULT_PORT): " USER_PORT
+        PORT=${USER_PORT:-$DEFAULT_PORT}
     fi
+    
+    # Validate port number
+    if ! [[ "$PORT" =~ ^[0-9]+$ ]] || [ "$PORT" -lt 1024 ] || [ "$PORT" -gt 65535 ]; then
+        print_warning "Invalid port number. Using default port 5000"
+        PORT=5000
+    fi
+    
+    # Find available port if specified port is in use
+    PORT=$(get_available_port $PORT)
+    
+    print_success "Server will run on port: $PORT"
+    
+    # Update .env.local with selected port
+    echo "PORT=$PORT" >> .env.local
     
     # Build the project
     print_status "Building the project..."

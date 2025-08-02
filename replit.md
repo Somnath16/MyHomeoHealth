@@ -13,6 +13,7 @@ My Homeo Health is a comprehensive full-stack homeopathy clinic management syste
 - ✅ **Code Cleanup**: Removed unnecessary files - test/temp files, duplicate documentation, outdated screenshots, and backup files
 - ✅ **Smart Database Management**: Enhanced setup scripts with intelligent database detection, automatic creation with secure credentials, and existing database integration support
 - ✅ **Interactive Database Selection**: Setup scripts now display all existing databases with numbered options, allowing users to select from existing databases or create new ones
+- ✅ **Port Configuration**: Setup scripts now ask users to configure the server port with validation and availability checking
 
 ## User Preferences
 
