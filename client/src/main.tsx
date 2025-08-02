@@ -13,7 +13,7 @@ if (!rootElement) {
 
 // Test with simple app first to isolate React issues
 // Change to <App /> once the dispatcher.useState error is resolved
-const USE_SIMPLE_APP = true; // Set to true to test with simple component
+const USE_SIMPLE_APP = false; // Set to true to test with simple component
 
 createRoot(rootElement).render(
   <ErrorBoundary>
