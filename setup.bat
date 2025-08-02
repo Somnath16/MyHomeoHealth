@@ -115,29 +115,65 @@ for /f %%i in ('powershell -Command "[System.Web.Security.Membership]::GenerateP
 if "!USE_CLOUD_DB!"=="true" (
     echo.
     set /p DATABASE_URL="Enter your cloud database URL: "
+    set PG_HOST=cloud
+    set PG_PORT=5432
+    set PG_USER=cloud
+    set PG_PASSWORD=cloud
+    set PG_DATABASE=cloud
 ) else (
     REM Setup local PostgreSQL database
     echo %BLUE%[INFO]%NC% Setting up local PostgreSQL database...
+    echo.
+    set /p PG_DATABASE="Enter database name (default: myhomeohealth): "
+    if "!PG_DATABASE!"=="" set PG_DATABASE=myhomeohealth
     
-    set /p PG_HOST="PostgreSQL host (default: localhost): "
-    if "!PG_HOST!"=="" set PG_HOST=localhost
+    echo %BLUE%[INFO]%NC% Checking if database '!PG_DATABASE!' exists...
     
-    set /p PG_PORT="PostgreSQL port (default: 5432): "
-    if "!PG_PORT!"=="" set PG_PORT=5432
-    
-    set /p PG_USER="PostgreSQL username (default: postgres): "
-    if "!PG_USER!"=="" set PG_USER=postgres
-    
-    set /p PG_PASSWORD="PostgreSQL password: "
-    
-    set /p PG_DATABASE="Database name (default: homeo_health): "
-    if "!PG_DATABASE!"=="" set PG_DATABASE=homeo_health
+    REM Check if database exists
+    psql -lqt | findstr /C:"!PG_DATABASE!" >nul 2>&1
+    if errorlevel 1 (
+        echo %BLUE%[INFO]%NC% Database '!PG_DATABASE!' not found. Creating new database...
+        set PG_USER=homeo_user
+        
+        REM Generate a simple password
+        for /f %%i in ('powershell -Command "Get-Random"') do set PG_PASSWORD=homeo%%i
+        set PG_HOST=localhost
+        set PG_PORT=5432
+        
+        createdb !PG_DATABASE! 2>nul
+        if errorlevel 1 (
+            echo %RED%[ERROR]%NC% Failed to create database. Please ensure PostgreSQL is running.
+            pause
+            exit /b 1
+        )
+        
+        echo %GREEN%[SUCCESS]%NC% Database '!PG_DATABASE!' created successfully
+        echo %GREEN%[SUCCESS]%NC% Using username: !PG_USER!
+        echo %GREEN%[SUCCESS]%NC% Generated password: !PG_PASSWORD!
+        
+        REM Save credentials
+        echo Database Credentials (save this information^): > .database-info.txt
+        echo Database Name: !PG_DATABASE! >> .database-info.txt
+        echo Username: !PG_USER! >> .database-info.txt
+        echo Password: !PG_PASSWORD! >> .database-info.txt
+        echo Host: !PG_HOST! >> .database-info.txt
+        echo Port: !PG_PORT! >> .database-info.txt
+        
+        echo %YELLOW%[WARNING]%NC% Database credentials saved to .database-info.txt
+        
+    ) else (
+        echo %GREEN%[SUCCESS]%NC% Database '!PG_DATABASE!' already exists
+        echo.
+        echo %BLUE%[INFO]%NC% Please provide credentials for existing database:
+        set /p PG_USER="PostgreSQL username: "
+        set /p PG_PASSWORD="PostgreSQL password: "
+        set /p PG_HOST="PostgreSQL host (default: localhost): "
+        if "!PG_HOST!"=="" set PG_HOST=localhost
+        set /p PG_PORT="PostgreSQL port (default: 5432): "
+        if "!PG_PORT!"=="" set PG_PORT=5432
+    )
     
     set DATABASE_URL=postgresql://!PG_USER!:!PG_PASSWORD!@!PG_HOST!:!PG_PORT!/!PG_DATABASE!
-    
-    REM Try to create database
-    echo %BLUE%[INFO]%NC% Creating database if it doesn't exist...
-    psql -h !PG_HOST! -p !PG_PORT! -U !PG_USER! -c "CREATE DATABASE !PG_DATABASE!;" 2>nul
 )
 
 REM Create .env.local file

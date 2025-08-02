@@ -108,17 +108,99 @@ install_postgresql() {
 setup_database() {
     print_status "Setting up PostgreSQL database..."
     
-    # Create database and user
-    sudo -u postgres psql -c "CREATE DATABASE homeo_health;" 2>/dev/null || true
-    sudo -u postgres psql -c "CREATE USER homeo_user WITH ENCRYPTED PASSWORD 'homeo_password';" 2>/dev/null || true
-    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE homeo_health TO homeo_user;" 2>/dev/null || true
-    sudo -u postgres psql -c "ALTER USER homeo_user CREATEDB;" 2>/dev/null || true
+    # Ask for database name
+    echo ""
+    read -p "Enter database name (default: myhomeohealth): " db_name
+    if [[ -z "$db_name" ]]; then
+        db_name="myhomeohealth"
+    fi
     
-    # Set the database URL
-    DATABASE_URL="postgresql://homeo_user:homeo_password@localhost:5432/homeo_health"
+    # Check if database exists
+    print_status "Checking if database '$db_name' exists..."
+    
+    if psql -lqt | cut -d \| -f 1 | grep -qw "$db_name" 2>/dev/null; then
+        print_success "Database '$db_name' already exists"
+        
+        # Ask for existing credentials
+        echo ""
+        print_status "Please provide credentials for existing database:"
+        read -p "PostgreSQL username: " db_user
+        read -s -p "PostgreSQL password: " db_password
+        echo ""
+        read -p "PostgreSQL host (default: localhost): " db_host
+        if [[ -z "$db_host" ]]; then
+            db_host="localhost"
+        fi
+        read -p "PostgreSQL port (default: 5432): " db_port
+        if [[ -z "$db_port" ]]; then
+            db_port="5432"
+        fi
+        
+        # Test connection
+        export PGPASSWORD="$db_password"
+        if psql -h "$db_host" -p "$db_port" -U "$db_user" -d "$db_name" -c "\q" 2>/dev/null; then
+            print_success "Database connection successful"
+            DATABASE_URL="postgresql://$db_user:$db_password@$db_host:$db_port/$db_name"
+        else
+            print_error "Failed to connect to database with provided credentials"
+            return 1
+        fi
+        
+    else
+        print_status "Database '$db_name' not found. Creating new database..."
+        
+        # Generate random password for new database
+        db_user="homeo_user"
+        db_password=$(openssl rand -base64 12 2>/dev/null || date +%s | sha256sum | base64 | head -c 12)
+        db_host="localhost"
+        db_port="5432"
+        
+        # Create database and user
+        print_status "Creating database and user..."
+        
+        # Use postgres superuser to create database
+        if command_exists sudo; then
+            sudo -u postgres psql -c "CREATE DATABASE $db_name;" 2>/dev/null || {
+                print_status "Trying alternative database creation method..."
+                psql -U postgres -c "CREATE DATABASE $db_name;" 2>/dev/null || {
+                    print_error "Failed to create database. Please ensure PostgreSQL is running and you have proper permissions."
+                    print_status "Manual setup: Run 'createdb $db_name' or ask your administrator to create the database."
+                    return 1
+                }
+            }
+            
+            sudo -u postgres psql -c "CREATE USER $db_user WITH ENCRYPTED PASSWORD '$db_password';" 2>/dev/null || true
+            sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $db_name TO $db_user;" 2>/dev/null || true
+            sudo -u postgres psql -c "ALTER USER $db_user CREATEDB;" 2>/dev/null || true
+        else
+            createdb "$db_name" 2>/dev/null || {
+                print_error "Failed to create database. Please run: createdb $db_name"
+                return 1
+            }
+        fi
+        
+        print_success "Database '$db_name' created successfully"
+        print_success "Database user '$db_user' created with password: $db_password"
+        
+        DATABASE_URL="postgresql://$db_user:$db_password@$db_host:$db_port/$db_name"
+        
+        # Save credentials to a file for reference
+        echo "Database Credentials (save this information):" > .database-info.txt
+        echo "Database Name: $db_name" >> .database-info.txt
+        echo "Username: $db_user" >> .database-info.txt
+        echo "Password: $db_password" >> .database-info.txt
+        echo "Host: $db_host" >> .database-info.txt
+        echo "Port: $db_port" >> .database-info.txt
+        echo "Connection URL: $DATABASE_URL" >> .database-info.txt
+        
+        print_warning "Database credentials saved to .database-info.txt"
+    fi
+    
+    # Save to .env.local
     echo "DATABASE_URL=$DATABASE_URL" > .env.local
+    print_success "Database configuration saved to .env.local"
     
-    print_success "Database setup completed"
+    return 0
 }
 
 # Function to get available port
@@ -134,22 +216,31 @@ get_available_port() {
 configure_environment() {
     print_status "Configuring environment variables..."
     
-    # Create .env.local file
-    cat > .env.local << EOF
-# Database Configuration
-DATABASE_URL=postgresql://homeo_user:homeo_password@localhost:5432/homeo_health
-PGHOST=localhost
-PGPORT=5432
-PGDATABASE=homeo_health
-PGUSER=homeo_user
-PGPASSWORD=homeo_password
+    # Extract database components from DATABASE_URL for individual env vars
+    if [[ $DATABASE_URL =~ postgresql://([^:]+):([^@]+)@([^:]+):([^/]+)/(.+) ]]; then
+        DB_USER="${BASH_REMATCH[1]}"
+        DB_PASSWORD="${BASH_REMATCH[2]}"
+        DB_HOST="${BASH_REMATCH[3]}"
+        DB_PORT="${BASH_REMATCH[4]}"
+        DB_NAME="${BASH_REMATCH[5]}"
+    fi
+    
+    # Add other environment variables to .env.local (DATABASE_URL was already added)
+    cat >> .env.local << EOF
+
+# Individual Database Configuration
+PGHOST=$DB_HOST
+PGPORT=$DB_PORT
+PGDATABASE=$DB_NAME
+PGUSER=$DB_USER
+PGPASSWORD=$DB_PASSWORD
 
 # Server Configuration
 NODE_ENV=development
 SESSION_SECRET=$(openssl rand -base64 32)
 
 # Development Settings
-VITE_API_URL=http://localhost:$PORT
+VITE_API_URL=http://localhost:5000
 EOF
     
     # Ask for AI configuration
@@ -239,7 +330,7 @@ main() {
     
     # Run database migrations
     print_status "Running database setup..."
-    export DATABASE_URL="$DATABASE_URL"
+    source .env.local
     npm run db:push 2>/dev/null || print_warning "Database migration will be attempted when server starts"
     
     # Check port availability
