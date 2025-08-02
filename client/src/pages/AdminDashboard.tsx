@@ -139,6 +139,9 @@ export default function AdminDashboard() {
   
   // Ensure admins is always an array
   const admins = Array.isArray(adminsData) ? adminsData : [];
+  
+  // Debug logging for admin data
+  console.log('Admin Data Debug:', { adminsData, admins, isLoadingAdmins, adminsError });
 
   const doctorForm = useForm<DoctorFormData>({
     resolver: zodResolver(doctorFormSchema),
@@ -1021,9 +1024,23 @@ export default function AdminDashboard() {
           <TabsContent value="admins" className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Admin Users Management</h2>
-              <div className="text-sm text-muted-foreground">
-                Manage system administrators (Note: Main 'admin' user cannot be deleted)
-              </div>
+              <Button 
+                onClick={() => {
+                  // Add new admin functionality can be implemented here
+                  toast({
+                    title: "Coming Soon",
+                    description: "Add new admin functionality will be implemented in the next update",
+                  });
+                }}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Admin User
+              </Button>
+            </div>
+            
+            <div className="text-sm text-muted-foreground mb-4">
+              Manage system administrators (Note: Main 'admin' user cannot be deleted)
             </div>
 
             <div className="grid gap-4">
