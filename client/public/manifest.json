@@ -1,0 +1,118 @@
+{
+  "name": "My Homeo Health",
+  "short_name": "HomeoHealth",
+  "description": "Comprehensive homeopathy clinic management system for doctors and patients",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#10B981",
+  "orientation": "portrait-primary",
+  "categories": ["medical", "health", "business"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSI3MiIgaGVpZ2h0PSI3MiI+PHBhdGggZD0iTTEyIDJsMy4wOSA2LjI2TDIyIDkuMjdsLTUgNC44NyAxLjE4IDYuODhMMTIgMTcuNzdsLTYuMTggMy4yNUw3IDE0LjE0IDIgOS4yN2w2LjkxLTEuMDFMMTIgMnoiLz48L3N2Zz4=",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiI+PHBhdGggZD0iTTEyIDJsMy4wOSA2LjI2TDIyIDkuMjdsLTUgNC44NyAxLjE4IDYuODhMMTIgMTcuNzdsLTYuMTggMy4yNUw3IDE0LjE0IDIgOS4yN2w2LjkxLTEuMDFMMTIgMnoiLz48L3N2Zz4=",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4Ij48cGF0aCBkPSJNMTIgMmwzLjA5IDYuMjZMMjIgOS4yN2wtNSA0Ljg3IDEuMTggNi44OEwxMiAxNy43N2wtNi4xOCAzLjI1TDcgMTQuMTQgMiA5LjI3bDYuOTEtMS4wMUwxMiAyeiIvPjwvc3ZnPg==",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xNiA4VjZhNCA0IDAgMCAwLTggMHYyYTIgMiAwIDEgMCA0IDB2LTEuNWExLjUgMS41IDAgMCAxIDMgMFY4YTIgMiAwIDEgMCA0IDBWNmE0IDQgMCAwIDAgMCAweiIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjE2IiByPSIyIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxNTIiIGhlaWdodD0iMTUyIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xNiA4VjZhNCA0IDAgMCAwLTggMHYyYTIgMiAwIDEgMCA0IDB2LTEuNWExLjUgMS41IDAgMCAxIDMgMFY4YTIgMiAwIDEgMCA0IDBWNmE0IDQgMCAwIDAgMCAweiIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjE2IiByPSIyIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+      "sizes": "152x152",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xNiA4VjZhNCA0IDAgMCAwLTggMHYyYTIgMiAwIDEgMCA0IDB2LTEuNWExLjUgMS41IDAgMCAxIDMgMFY4YTIgMiAwIDEgMCA0IDBWNmE0IDQgMCAwIDAgMCAweiIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjE2IiByPSIyIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIzODQiIGhlaWdodD0iMzg0Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xNiA4VjZhNCA0IDAgMCAwLTggMHYyYTIgMiAwIDEgMCA0IDB2LTEuNWExLjUgMS41IDAgMCAxIDMgMFY4YTIgMiAwIDEgMCA0IDBWNmE0IDQgMCAwIDAgMCAweiIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjE2IiByPSIyIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+      "sizes": "384x384",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIj48cGF0aCBkPSJNMTIgMmwzLjA5IDYuMjZMMjIgOS4yN2wtNSA0Ljg3IDEuMTggNi44OEwxMiAxNy43N2wtNi4xOCAzLjI1TDcgMTQuMTQgMiA5LjI3bDYuOTEtMS4wMUwxMiAyeiIvPjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjU2OCIgdmlld0JveD0iMCAwIDMyMCA1NjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjMyMCIgaGVpZ2h0PSI1NjgiIGZpbGw9IiNGOEZBRkMiLz48cmVjdCB4PSIxNiIgeT0iMTYiIHdpZHRoPSIyODgiIGhlaWdodD0iNTM2IiByeD0iMTYiIGZpbGw9IndoaXRlIi8+PHRleHQgeD0iMTYwIiB5PSI4MCIgZmlsbD0iIzEwQjk4MSIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC13ZWlnaHQ9ImJvbGQiPk15IEhvbWVvIEhlYWx0aDwvdGV4dD48L3N2Zz4=",
+      "sizes": "320x568",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "My Homeo Health Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calendar",
+      "short_name": "Calendar",
+      "description": "View appointment calendar",
+      "url": "/calendar",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiPjxwYXRoIGQ9Ik0xOSAzaC0xVjFoLTJ2Mkg4VjFINnYySDVjLTEuMTEgMC0xLjk5LjktMS45OSAyTDMgMTljMCAxLjEuODkgMiAyIDJoMTRjMS4xIDAgMi0uOSAyLTJWNWMwLTEuMS0uOS0yLTItMnptMCAxNkg1VjhoMTR2MTF6TTcgMTBoNXYxSDd6Ii8+PC9zdmc+",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Patients",
+      "short_name": "Patients",
+      "description": "Manage patients",
+      "url": "/patients",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiPjxwYXRoIGQ9Ik0xNiAxNGM2IDAgNiAyIDYgMnYySDJ2LTJzMC0yIDYtMm0wLTJjLTIuMjEgMC00LTEuNzktNC00czEuNzktNCA0LTQgNCAxLjc5IDQgNC0xLjc5IDQtNCA0em0wLTFjMi42NyAwIDgtMS4zNCA4LTQgMC0xLjQ1LTEuMjctMy0yLjgtMy42LTMuODktMS4zMS05LjI5IDEuOTUtNC4yIDMuMkM5LjUgOCA4IDkuMzMgOCAxMiAwIDEzLjMzIDEuMzMgMTUgNCA2eiIvPjwvc3ZnPg==",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Prescriptions",
+      "short_name": "Prescriptions",
+      "description": "Manage prescriptions",
+      "url": "/prescriptions",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiPjxwYXRoIGQ9Ik0xNCAySDZjLTEuMSAwLTIgLjktMiAydjE2YzAgMS4xLjkgMiAyIDJoMTJjMS4xIDAgMi0uOSAyLTJWOGwtNi02ek0xNSAxNUgxM3YyaC0ydi0ySDl2LTJoMnYtMmgydjJoMnYyem0tNC0xMFY3aDQuNUwxNSA1eiIvPjwvc3ZnPg==",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 320
+  }
+}

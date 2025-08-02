@@ -1,0 +1,215 @@
+# My Homeo Health - Homeopathy Doctor Appointment Booking System
+
+## Overview
+
+My Homeo Health is a comprehensive full-stack web application for managing homeopathy clinic operations including appointments, patients, and prescriptions. The system features role-based access control with admin, doctor, and patient roles, a calendar-based appointment booking interface, patient management, and prescription tracking. It's built with modern web technologies using React for the frontend and Node.js/Express for the backend, with PostgreSQL as the database.
+
+**Status: FULLY OPERATIONAL** - All core features are working including patient creation, prescription management, AI-powered medicine suggestions, and multilingual Bengali/English support.
+
+## Recent Changes (July 27, 2025)
+- ✅ **COMPLETED: Full responsive UI implementation** - Application now works seamlessly on mobile, tablet, laptop, and desktop devices
+- ✅ **COMPLETED: Local VS Code development setup** - Added comprehensive configuration files, documentation, and setup guides for local development
+- ✅ **NEW: Complete development environment** - Created README.md, SETUP.md, LOCAL_SETUP.md with step-by-step instructions
+- ✅ **NEW: VS Code integration** - Added .vscode folder with extensions, settings, launch configurations, and debugging support
+- ✅ **NEW: Docker support** - Added Dockerfile and docker-compose.yml for containerized development and deployment
+- ✅ **Enhanced responsive design** - Implemented comprehensive CSS media queries and touch-friendly features for all device types
+- ✅ **Mobile-first navigation** - Redesigned tab layout and navigation for optimal mobile experience with abbreviated labels
+- ✅ **Cross-browser compatibility** - Fixed CSS issues and implemented inline styles for consistent display across browsers
+- ✅ **Professional documentation** - Complete setup guides for both beginners and experienced developers with troubleshooting sections
+- ✅ **Comprehensive requirements system** - Added REQUIREMENTS.md with detailed system requirements, installation guides, and compatibility information
+- ✅ **Advanced Docker configuration** - Multi-stage Dockerfile with development/production targets, three Docker Compose configurations for different environments
+- ✅ **Automated setup scripts** - Shell scripts for both Docker and local setup with interactive menus and error handling
+- ✅ **Production-ready deployment** - Nginx reverse proxy, SSL support, Redis session storage, health checks, and monitoring
+- ✅ **Database initialization** - Custom PostgreSQL initialization scripts and automated schema setup
+- ✅ **Development tools integration** - Complete Docker development environment with hot reload and database GUI
+
+## Previous Changes
+- ✅ Application rebranded to "My Homeo Health" with medical cross logo featuring homeopathic elements
+- ✅ Role-based access control fully implemented with three user roles
+- ✅ Authentication system with session management 
+- ✅ Admin panel for doctor registration and management
+- ✅ Demo accounts created for testing all roles
+- ✅ Custom homeopathic star logo integrated throughout the application
+- ✅ Fixed CSS visibility issues for app name and logo using inline styles for cross-browser compatibility
+- ✅ Enhanced patient management with comprehensive filter system (ID, name, mobile, location, date)
+- ✅ Added "Clear Filters" functionality for patient search
+- ✅ Improved patient display with empty state handling
+- ✅ Fixed backend patient retrieval issue - patients now show immediately after creation
+- ✅ Converted patient list from card view to professional table format
+- ✅ Added action buttons for "View Details" and "Add Prescription" for each patient
+- ✅ Enhanced patient detail view with prescription history in card format
+- ✅ Integrated prescription creation workflow directly from patient profiles
+- ✅ Implemented AI-powered medicine suggestion system with dual-mode functionality
+- ✅ Database suggestions now appear automatically while typing symptoms (5+ characters)
+- ✅ AI suggestions available via separate button click for enhanced recommendations
+- ✅ Added comprehensive Bengali/English multilingual support with toggle functionality
+- ✅ Medicine names remain in English, dosage and symptoms display in Bengali by default
+- ✅ Fixed prescription query key format for proper data fetching in patient details
+- ✅ **RESOLVED: Patient creation issue** - Fixed duplicate key constraint error in patient ID generation
+- ✅ **RESOLVED: Prescription display issue** - Prescriptions now show immediately in patient details
+- ✅ **NEW: Prescription filtering system** - Added search by symptoms, date, and ID with reset functionality
+- ✅ **Enhanced prescription ordering** - Latest prescriptions now show first automatically
+- ✅ **RESOLVED: Navigation issue** - "Back to Patients" now returns to Patient tab with preserved filters
+- ✅ **Improved UX** - "Add New Prescription" button moved to header next to total count
+- ✅ **NEW: Professional prescription print system** - Print preview with medicine codes and proper template format
+- ✅ **Medicine code mapping** - Automatic generation of standard homeopathic medicine codes
+- ✅ **NEW: Admin Template Management System** - Comprehensive template creation, upload, and doctor assignment functionality
+- ✅ **Template Builder** - Form-based template creation with custom fields, layout options, and clinic branding
+- ✅ **Template Assignment** - Admin-controlled assignment of templates to specific doctors
+- ✅ **Template Upload** - Support for HTML template file uploads with parsing capabilities
+- ✅ **FINAL: Restructured Admin Panel** - Streamlined to 3 tabs: Dashboard, Doctor Management, Template Management
+- ✅ **Dashboard Statistics** - Shows total patient count by doctor, total doctors, medicine count with visual cards
+- ✅ **Clickable Doctor Navigation** - Doctor entries link directly to filtered patient views for that doctor
+- ✅ **Enhanced Data Display** - Professional table layouts with action buttons and status indicators
+- ✅ **Complete Integration** - All core functionality working: patient management, appointments, prescriptions, AI suggestions, template management, dashboard analytics
+- ✅ **Medicine Card Optimization** - Compact medicine cards with reduced spacing and better layout efficiency
+- ✅ **Prescription Template Fix** - Updated prescription templates to show generic "Medicine 1", "Medicine 2" codes instead of actual medicine names for professional privacy
+- ✅ **Clinic Information System** - Added comprehensive clinic information fields to doctor profiles including multilingual support
+- ✅ **Enhanced Doctor Registration** - Admin can now add clinic name, location, degree, specialist info, and extra notes in both English and Bengali
+- ✅ **Dynamic Prescription Templates** - Prescription headers and footers now automatically display doctor's clinic information with language toggle
+- ✅ **Multilingual Prescription Support** - Prescription templates support Bengali/English toggle with proper Unicode rendering
+- ✅ **Doctor Management Actions** - Added Edit and Delete buttons to doctor list in admin panel
+- ✅ **Edit Doctor Functionality** - Admin can now edit existing doctor information including clinic details
+- ✅ **Delete Doctor Functionality** - Admin can safely delete doctors with confirmation dialog (soft delete preserves data integrity)
+- ✅ **Enhanced Doctor Registration Modal** - Complete redesign with professional layout, organized sections, and all clinic information fields
+- ✅ **Multilingual Clinic Information** - Full English/Bengali support for clinic name, location, degree, specialist areas, and extra notes
+- ✅ **Professional Modal Design** - Clean sections, proper field validation, larger modal size, and improved user experience
+- ✅ **Name-Based ID Generation System** - Patient IDs now use doctor's name (RHP-1 for Dr. Ranajit, RHP2-1 for duplicate names)
+- ✅ **Doctor-Specific Prescription IDs** - Prescription IDs follow name-based format (RRX-001 for Dr. Ranajit prescriptions)
+- ✅ **Dynamic Prescription Templates** - Print templates now show actual doctor clinic details instead of hardcoded information
+- ✅ **Optimized Print Layout** - Reduced symptoms section size (35% width) to give more space for medicine details (65% width)
+- ✅ **Doctor-Specific Medicine Management** - Each doctor now has their own medicine database with separate lists
+- ✅ **Enhanced Medicine Filtering** - Fixed search functionality to work within doctor's personal medicine collection
+- ✅ **Database Schema Update** - Added doctorId field to medicines table for proper data segregation
+- ✅ **Role-Based Medicine Access** - Auto-assignment of doctorId when doctors create medicines, admin sees all medicines
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React 18 with TypeScript
+- **Styling**: Tailwind CSS with shadcn/ui component library
+- **State Management**: TanStack Query (React Query) for server state
+- **Routing**: Wouter for client-side routing
+- **Build Tool**: Vite for development and build processes
+- **UI Components**: Comprehensive set of reusable components using Radix UI primitives
+
+### Backend Architecture
+- **Runtime**: Node.js with Express.js framework
+- **Language**: TypeScript with ES modules
+- **API Pattern**: RESTful API design
+- **Database ORM**: Drizzle ORM for type-safe database operations
+- **Session Management**: Built-in session handling with PostgreSQL store
+
+### Database Design
+- **Database**: PostgreSQL (using Neon serverless)
+- **Schema Management**: Drizzle migrations
+- **Tables**: 
+  - Users (authentication)
+  - Patients (with auto-generated IDs like HP-1, HP-2)
+  - Appointments (with auto-generated IDs like HPA-1, HPA-2)
+  - Prescriptions (linked to patients and appointments)
+
+## Key Components
+
+### Calendar System
+- Weekly calendar view with 20-minute appointment slots
+- Business rules enforcement:
+  - Tuesday: Complete weekly off
+  - Sunday morning (before 1 PM): Blocked
+- Time slots from 9:00 AM to 5:00 PM
+- Visual indicators for available, booked, and blocked slots
+
+### Patient Management
+- Auto-incrementing patient IDs (HP-1, HP-2, etc.)
+- Patient profile with demographics (name, age, phone, gender, address)
+- Search functionality by name or ID
+- Individual patient profiles showing appointment history
+
+### Appointment Booking
+- Interactive slot selection
+- Patient assignment to time slots
+- Status tracking (upcoming/completed)
+- Conflict prevention for double booking
+
+### Dashboard Interface
+- Multi-tab layout:
+  - Calendar view for bookings
+  - Appointments list with filtering
+  - Patient management
+  - Prescription tracking
+- Responsive design for mobile and desktop
+
+## Data Flow
+
+1. **Appointment Booking Flow**:
+   - User selects available time slot on calendar
+   - Modal opens for patient selection
+   - System validates business rules
+   - Appointment created with auto-generated ID
+   - Calendar updates in real-time
+
+2. **Patient Management Flow**:
+   - New patient creation with auto-generated ID
+   - Patient search and profile viewing
+   - Integration with appointment and prescription systems
+
+3. **Prescription Flow**:
+   - Prescription creation linked to patient
+   - Historical prescription tracking
+   - Integration with patient profiles
+
+## External Dependencies
+
+### Core Framework Dependencies
+- React ecosystem (React, React DOM, React Query)
+- Express.js for server framework
+- Drizzle ORM with PostgreSQL adapter
+- Neon Database for serverless PostgreSQL
+
+### UI/UX Dependencies
+- Tailwind CSS for styling
+- Radix UI primitives for accessible components
+- Lucide React for icons
+- React Hook Form for form management
+
+### Development Dependencies
+- Vite for build tooling
+- TypeScript for type safety
+- ESBuild for server bundling
+- Replit-specific plugins for development environment
+
+## Deployment Strategy
+
+### Development Environment
+- **Frontend**: Vite dev server with HMR
+- **Backend**: tsx for TypeScript execution
+- **Database**: Neon serverless PostgreSQL
+- **Environment**: Replit-optimized with specific plugins
+
+### Production Build
+- **Frontend**: Vite builds static assets to `dist/public`
+- **Backend**: ESBuild bundles server code to `dist/index.js`
+- **Database**: Drizzle migrations via `db:push` command
+- **Deployment**: Single command deployment with `npm start`
+
+### Key Architectural Decisions
+
+1. **Monorepo Structure**: Client, server, and shared code in single repository for easier development and deployment
+
+2. **Type Safety**: End-to-end TypeScript with shared schema definitions between client and server
+
+3. **Database Strategy**: Drizzle ORM chosen for type safety and PostgreSQL compatibility, with Neon for serverless deployment
+
+4. **State Management**: React Query for server state eliminates need for complex client state management
+
+5. **Component Architecture**: shadcn/ui provides consistent, accessible components while allowing customization
+
+6. **Business Logic**: Appointment scheduling rules enforced both client-side (UX) and server-side (data integrity)
+
+7. **Responsive Design**: Mobile-first approach with Tailwind CSS breakpoints for multi-device support
+
+The architecture prioritizes developer experience, type safety, and maintainability while providing a robust foundation for the homeopathy practice management requirements.

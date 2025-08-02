@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Conversational Booking Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .chat-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 70%;
+        }
+        .user-message {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .bot-message {
+            background: #e9ecef;
+            color: #333;
+            margin-right: auto;
+        }
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+        }
+        input, button { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            font-size: 16px;
+        }
+        button { 
+            background: #25d366; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            margin-top: 10px;
+        }
+        button:hover { 
+            background: #128c7e; 
+        }
+        .setup-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .chat-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { 
+            background: #d4edda; 
+            border: 1px solid #c3e6cb; 
+            color: #155724; 
+        }
+        .error { 
+            background: #f8d7da; 
+            border: 1px solid #f5c6cb; 
+            color: #721c24; 
+        }
+        .keyword-examples {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .step-indicator {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 WhatsApp Conversational Booking Test</h1>
+    <p>Test the enhanced conversational appointment booking system that automatically guides patients through the booking process.</p>
+
+    <div class="setup-section">
+        <h3>Setup Information</h3>
+        <div class="form-group">
+            <label for="doctorPhone">Doctor's WhatsApp Number:</label>
+            <input type="text" id="doctorPhone" placeholder="+8801234567890" value="+8801234567890">
+        </div>
+        <div class="form-group">
+            <label for="patientPhone">Patient's Phone Number:</label>
+            <input type="text" id="patientPhone" placeholder="+8801987654321" value="+8801987654321">
+        </div>
+        
+        <div class="keyword-examples">
+            <h4>🔤 Try these keywords to start booking:</h4>
+            <ul>
+                <li><strong>English:</strong> "appointment", "booking", "book", "schedule", "visit", "consultation"</li>
+                <li><strong>Bengali:</strong> "অ্যাপয়েন্টমেন্ট", "বুকিং", "সময়", "দেখা", "চিকিৎসা"</li>
+                <li><strong>General messages:</strong> "Hi", "Hello" (will provide clinic info)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <h3>💬 Conversation Simulator</h3>
+        <div id="chatMessages" class="chat-messages">
+            <div class="step-indicator">
+                📋 <strong>Conversation Flow:</strong><br>
+                1. Send appointment keyword → Bot asks for name<br>
+                2. Provide name → Bot asks for age<br>
+                3. Provide age → Bot asks for gender<br>
+                4. Provide gender → Bot asks for location<br>
+                5. Provide location → Appointment confirmed!
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="messageInput">Your Message:</label>
+            <input type="text" id="messageInput" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
+        </div>
+        <button onclick="sendMessage()">Send Message</button>
+        <button onclick="clearChat()" style="background: #dc3545; margin-top: 5px;">Clear Chat</button>
+    </div>
+
+    <div id="status"></div>
+
+    <script>
+        let messageCount = 0;
+
+        function addMessage(text, isUser = false) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const doctorPhone = document.getElementById('doctorPhone').value;
+            const patientPhone = document.getElementById('patientPhone').value;
+            const message = document.getElementById('messageInput').value.trim();
+            
+            if (!message) {
+                showStatus('Please enter a message', 'error');
+                return;
+            }
+
+            // Add user message to chat
+            addMessage(message, true);
+            document.getElementById('messageInput').value = '';
+            
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message';
+            typingDiv.innerHTML = '💭 Typing...';
+            typingDiv.id = 'typing-indicator';
+            document.getElementById('chatMessages').appendChild(typingDiv);
+            
+            const requestData = {
+                doctorPhone: doctorPhone,
+                patientPhone: patientPhone,
+                message: message
+            };
+            
+            try {
+                const response = await fetch('/api/whatsapp/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage(data.message);
+                    showStatus('Message processed successfully', 'success');
+                } else {
+                    addMessage('❌ ' + data.message);
+                    showStatus('Error: ' + data.message, 'error');
+                }
+                
+            } catch (error) {
+                // Remove typing indicator
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                console.error('Error:', error);
+                addMessage('❌ Connection error. Please check if the server is running.');
+                showStatus('Connection error: ' + error.message, 'error');
+            }
+        }
+
+        function clearChat() {
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.innerHTML = `
+                <div class="step-indicator">
+                    📋 <strong>Conversation Flow:</strong><br>
+                    1. Send appointment keyword → Bot asks for name<br>
+                    2. Provide name → Bot asks for age<br>
+                    3. Provide age → Bot asks for gender<br>
+                    4. Provide gender → Bot asks for location<br>
+                    5. Provide location → Appointment confirmed!
+                </div>
+            `;
+            showStatus('Chat cleared', 'success');
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        // Add welcome message
+        window.onload = function() {
+            addMessage(`🤖 Welcome to the WhatsApp Conversational Booking Test!\n\nThis simulates how patients can book appointments by having a natural conversation.\n\nTry sending "appointment" or "booking" to start!`);
+        };
+    </script>
+</body>
+</html>

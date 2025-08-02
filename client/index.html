@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="description" content="My Homeo Health - Comprehensive homeopathy clinic management system for doctors and patients" />
+    <meta name="keywords" content="homeopathy, clinic management, doctor, patient, appointment, prescription, mobile health" />
+    <meta name="author" content="My Homeo Health" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#10B981" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="My Homeo Health" />
+    <meta name="msapplication-TileColor" content="#10B981" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xNiA4VjZhNCA0IDAgMCAwLTggMHYyYTIgMiAwIDEgMCA0IDB2LTEuNWExLjUgMS41IDAgMCAxIDMgMFY4YTIgMiAwIDEgMCA0IDBWNmE0IDQgMCAwIDAgMCAweiIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjE2IiByPSIyIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" />
+    <link rel="apple-touch-icon" sizes="152x152" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxNTIiIGhlaWdodD0iMTUyIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xNiA4VjZhNCA0IDAgMCAwLTggMHYyYTIgMiAwIDEgMCA0IDB2LTEuNWExLjUgMS41IDAgMCAxIDMgMFY4YTIgMiAwIDEgMCA0IDBWNmE0IDQgMCAwIDAgMCAweiIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjE2IiByPSIyIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" />
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xNiA4VjZhNCA0IDAgMCAwLTggMHYyYTIgMiAwIDEgMCA0IDB2LTEuNWExLjUgMS41IDAgMCAxIDMgMFY4YTIgMiAwIDEgMCA0IDBWNmE0IDQgMCAwIDAgMCAweiIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjE2IiByPSIyIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIiBmaWxsPSIjMTBCOTgxIi8+PHBhdGggZD0iTTE2IDhWNmE0IDQgMCAwIDAtOCAwdjJhMiAyIDAgMSAwIDQgMHYtMS41YTEuNSAxLjUgMCAwIDEgMyAwVjhhMiAyIDAgMSAwIDQgMFY2YTQgNCAwIDAgMCAwIDB6IiBmaWxsPSJ3aGl0ZSIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTYiIHI9IjIiIGZpbGw9IndoaXRlIi8+PC9zdmc+" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Preconnect to improve performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://my-homeo-health.com/" />
+    <meta property="og:title" content="My Homeo Health - Homeopathy Clinic Management" />
+    <meta property="og:description" content="Comprehensive homeopathy clinic management system for doctors and patients with mobile-first design" />
+    <meta property="og:image" content="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjYzMCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMxMEI5ODEiLz48cGF0aCBkPSJNMTYgOFY2YTQgNCAwIDAgMC04IDB2MmEyIDIgMCAxIDAgNCAwdi0xLjVhMS41IDEuNSAwIDAgMSAzIDBWOGEyIDIgMCAxIDAgNCAwVjZhNCA0IDAgMCAwIDAgMHoiIGZpbGw9IndoaXRlIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSIxNiIgcj0iMiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://my-homeo-health.com/" />
+    <meta property="twitter:title" content="My Homeo Health - Homeopathy Clinic Management" />
+    <meta property="twitter:description" content="Comprehensive homeopathy clinic management system for doctors and patients with mobile-first design" />
+    <meta property="twitter:image" content="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjYzMCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMxMEI5ODEiLz48cGF0aCBkPSJNMTYgOFY2YTQgNCAwIDAgMC04IDB2MmEyIDIgMCAxIDAgNCAwdi0xLjVhMS41IDEuNSAwIDAgMSAzIDBWOGEyIDIgMCAxIDAgNCAwVjZhNCA0IDAgMCAwIDAgMHoiIGZpbGw9IndoaXRlIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSIxNiIgcj0iMiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=" />
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9IiMxMEI5ODEiIHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzEwQjk4MSIvPjxwYXRoIGQ9Ik0xNiA4VjZhNCA0IDAgMCAwLTggMHYyYTIgMiAwIDEgMCA0IDB2LTEuNWExLjUgMS41IDAgMCAxIDMgMFY4YTIgMiAwIDEgMCA0IDBWNmE0IDQgMCAwIDAgMCAweiIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxMiIgY3k9IjE2IiByPSIyIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==" />
+    
+    <!-- Disable automatic phone number detection -->
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Optimize for mobile touch -->
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- Prevent zoom on input focus (iOS) -->
+    <style>
+      @media screen and (max-width: 767px) {
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"],
+        input[type="number"],
+        textarea,
+        select {
+          font-size: 16px !important;
+        }
+      }
+    </style>
+    
+    <title>My Homeo Health - Homeopathy Clinic Management</title>
+  </head>
+  <body>
+    <!-- PWA Install Banner (Hidden by default, shown via JavaScript) -->
+    <div id="pwa-install-banner" class="hidden fixed top-0 left-0 right-0 bg-gradient-to-r from-primary to-secondary text-white p-3 text-center z-50 shadow-lg">
+      <div class="flex items-center justify-between max-w-md mx-auto">
+        <div class="flex items-center space-x-2">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+            <circle cx="12" cy="12" r="10" fill="currentColor"/>
+            <path d="M16 8V6a4 4 0 0 0-8 0v2a2 2 0 1 0 4 0v-1.5a1.5 1.5 0 0 1 3 0V8a2 2 0 1 0 4 0V6a4 4 0 0 0 0 0z" fill="white"/>
+            <circle cx="12" cy="16" r="2" fill="white"/>
+          </svg>
+          <span class="text-sm font-medium">Install My Homeo Health for better experience</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button id="pwa-install-btn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 touch-target">
+            Install
+          </button>
+          <button id="pwa-dismiss-btn" class="p-1 hover:bg-white hover:bg-opacity-20 rounded-full transition-all duration-200 touch-target">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Offline Indicator -->
+    <div id="offline-indicator" class="hidden fixed top-0 left-0 right-0 bg-orange-500 text-white p-2 text-center text-sm z-40">
+      <div class="flex items-center justify-center space-x-2">
+        <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+          <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.07 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+        </svg>
+        <span>You're offline. Some features may not be available.</span>
+      </div>
+    </div>
+    
+    <!-- Pull to Refresh Indicator -->
+    <div id="pull-refresh-indicator" class="hidden fixed top-16 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-full p-3 z-30">
+      <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="root" class="min-h-screen bg-neutral-50 font-sans antialiased"></div>
+    
+    <!-- Scripts -->
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- PWA and Mobile Enhancement Script -->
+    <script>
+      // PWA Installation Logic
+      let deferredPrompt = null;
+      const installBanner = document.getElementById('pwa-install-banner');
+      const installBtn = document.getElementById('pwa-install-btn');
+      const dismissBtn = document.getElementById('pwa-dismiss-btn');
+      
+      // Check if app is already installed
+      function isAppInstalled() {
+        return window.matchMedia('(display-mode: standalone)').matches || 
+               window.navigator.standalone === true;
+      }
+      
+      // Show install banner
+      function showInstallBanner() {
+        if (!isAppInstalled() && deferredPrompt && !localStorage.getItem('pwa-dismissed')) {
+          installBanner.classList.remove('hidden');
+        }
+      }
+      
+      // Hide install banner
+      function hideInstallBanner() {
+        installBanner.classList.add('hidden');
+      }
+      
+      // Handle beforeinstallprompt event
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showInstallBanner();
+      });
+      
+      // Handle install button click
+      installBtn?.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const choiceResult = await deferredPrompt.userChoice;
+          
+          if (choiceResult.outcome === 'accepted') {
+            console.log('PWA installed');
+          }
+          
+          deferredPrompt = null;
+          hideInstallBanner();
+        }
+      });
+      
+      // Handle dismiss button click
+      dismissBtn?.addEventListener('click', () => {
+        localStorage.setItem('pwa-dismissed', 'true');
+        hideInstallBanner();
+      });
+      
+      // Handle app installation
+      window.addEventListener('appinstalled', () => {
+        console.log('PWA was installed');
+        hideInstallBanner();
+        deferredPrompt = null;
+      });
+      
+      // Network Status Management
+      const offlineIndicator = document.getElementById('offline-indicator');
+      
+      function updateNetworkStatus() {
+        if (navigator.onLine) {
+          offlineIndicator?.classList.add('hidden');
+        } else {
+          offlineIndicator?.classList.remove('hidden');
+        }
+      }
+      
+      window.addEventListener('online', updateNetworkStatus);
+      window.addEventListener('offline', updateNetworkStatus);
+      updateNetworkStatus(); // Initial check
+      
+      // Pull to Refresh Logic
+      let startY = 0;
+      let pullDistance = 0;
+      let isPulling = false;
+      const refreshIndicator = document.getElementById('pull-refresh-indicator');
+      const PULL_THRESHOLD = 80;
+      
+      function handleTouchStart(e) {
+        if (window.scrollY === 0) {
+          startY = e.touches[0].clientY;
+          isPulling = false;
+        }
+      }
+      
+      function handleTouchMove(e) {
+        if (window.scrollY === 0 && startY > 0) {
+          pullDistance = e.touches[0].clientY - startY;
+          
+          if (pullDistance > 10) {
+            e.preventDefault(); // Prevent default scroll behavior
+          }
+          
+          if (pullDistance > PULL_THRESHOLD && !isPulling) {
+            isPulling = true;
+            refreshIndicator?.classList.remove('hidden');
+            
+            // Haptic feedback if available
+            if (navigator.vibrate) {
+              navigator.vibrate(50);
+            }
+          }
+        }
+      }
+      
+      function handleTouchEnd() {
+        if (isPulling) {
+          isPulling = false;
+          
+          // Hide indicator after a delay
+          setTimeout(() => {
+            refreshIndicator?.classList.add('hidden');
+          }, 1000);
+          
+          // Trigger refresh event for React app
+          window.dispatchEvent(new CustomEvent('pullToRefresh'));
+        }
+        
+        startY = 0;
+        pullDistance = 0;
+      }
+      
+      // Add touch event listeners for pull to refresh
+      document.addEventListener('touchstart', handleTouchStart, { passive: false });
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
+      
+      // Service Worker Registration
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+              
+              // Check for updates
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                if (newWorker) {
+                  newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                      // New content available, refresh the page
+                      if (confirm('New version available! Refresh to update?')) {
+                        window.location.reload();
+                      }
+                    }
+                  });
+                }
+              });
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+      
+      // Prevent zoom on double tap (iOS Safari)
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', (event) => {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+      
+      // Improve touch scrolling performance
+      document.addEventListener('touchstart', () => {}, { passive: true });
+      document.addEventListener('touchmove', () => {}, { passive: true });
+      
+      // Handle keyboard appearance on mobile
+      function handleViewportChange() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      }
+      
+      window.addEventListener('resize', handleViewportChange);
+      window.addEventListener('orientationchange', handleViewportChange);
+      handleViewportChange(); // Initial call
+      
+      // Preload critical resources
+      const preloadResources = [
+        '/src/main.tsx',
+        '/src/index.css',
+        '/src/App.tsx'
+      ];
+      
+      preloadResources.forEach(resource => {
+        const link = document.createElement('link');
+        link.rel = 'modulepreload';
+        link.href = resource;
+        document.head.appendChild(link);
+      });
+      
+      // Performance monitoring
+      if ('performance' in window) {
+        window.addEventListener('load', () => {
+          setTimeout(() => {
+            const perfData = performance.getEntriesByType('navigation')[0];
+            if (perfData) {
+              console.log('Page load time:', perfData.loadEventEnd - perfData.loadEventStart);
+            }
+          }, 0);
+        });
+      }
+      
+      // Error tracking for mobile
+      window.addEventListener('error', (event) => {
+        console.error('Mobile error:', event.error);
+        // Here you could send errors to an analytics service
+      });
+      
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('Unhandled promise rejection:', event.reason);
+        // Handle promise rejections
+      });
+    </script>
+    
+    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+  </body>
+</html>

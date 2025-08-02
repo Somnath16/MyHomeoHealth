@@ -1,0 +1,276 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(240, 10%, 3.9%);
+  --muted: hsl(210, 40%, 98%);
+  --muted-foreground: hsl(215, 16%, 47%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(240, 10%, 3.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(240, 10%, 3.9%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
+  --primary: hsl(158, 64%, 52%);
+  --primary-foreground: hsl(355, 7%, 97%);
+  --secondary: hsl(217, 91%, 60%);
+  --secondary-foreground: hsl(222, 84%, 5%);
+  --accent: hsl(262, 83%, 58%);
+  --accent-foreground: hsl(210, 40%, 98%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(60, 9%, 98%);
+  --ring: hsl(240, 10%, 3.9%);
+  --radius: 0.5rem;
+  
+  /* Custom mobile colors */
+  --mobile-primary: hsl(158, 64%, 52%);
+  --mobile-secondary: hsl(217, 91%, 60%);
+  --mobile-accent: hsl(262, 83%, 58%);
+  --mobile-neutral-50: hsl(210, 40%, 98%);
+  --mobile-neutral-100: hsl(210, 40%, 96%);
+  --mobile-neutral-200: hsl(214, 32%, 91%);
+  --mobile-neutral-300: hsl(213, 27%, 84%);
+  --mobile-neutral-400: hsl(215, 20%, 65%);
+  --mobile-neutral-500: hsl(215, 16%, 47%);
+  --mobile-neutral-600: hsl(215, 19%, 35%);
+  --mobile-neutral-700: hsl(215, 25%, 27%);
+  --mobile-neutral-800: hsl(217, 33%, 17%);
+  --mobile-neutral-900: hsl(222, 84%, 5%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(158, 64%, 52%);
+  --primary-foreground: hsl(355, 7%, 97%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    margin: 0;
+    padding: 0;
+  }
+
+  #root {
+    min-height: 100vh;
+    width: 100%;
+  }
+}
+
+@layer components {
+  .gradient-bg {
+    background: linear-gradient(135deg, #3B82F6 0%, #14B8A6 100%);
+  }
+  
+  .medical-background {
+    background-image: url('@assets/background_1753639585794.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  
+  .mobile-header {
+    @apply bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50;
+  }
+  
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  .transition-smooth {
+    @apply transition-all duration-200 ease-in-out;
+  }
+}
+
+@layer components {
+  /* Touch-friendly interactions */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  /* Mobile drawer animation */
+  .drawer-enter {
+    transform: translateX(-100%);
+  }
+  
+  .drawer-enter-active {
+    transform: translateX(0);
+    transition: transform 0.3s ease-out;
+  }
+  
+  /* Calendar swipe area */
+  .calendar-swipe {
+    touch-action: pan-x;
+  }
+  
+  /* Custom scrollbar for mobile */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--mobile-neutral-100));
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--mobile-neutral-300));
+    border-radius: 2px;
+  }
+  
+  /* Floating action button */
+  .fab {
+    box-shadow: 0 4px 12px hsla(var(--mobile-primary), 0.4);
+  }
+  
+  /* Card hover effects */
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px hsla(0, 0%, 0%, 0.1);
+  }
+  
+  /* Form focus states */
+  .form-input:focus {
+    border-color: hsl(var(--mobile-primary));
+    box-shadow: 0 0 0 3px hsla(var(--mobile-primary), 0.1);
+  }
+
+  /* Mobile navigation */
+  .mobile-nav-active {
+    color: hsl(var(--mobile-primary));
+  }
+
+  /* PWA specific styles */
+  .pwa-install-banner {
+    background: linear-gradient(135deg, hsl(var(--mobile-primary)), hsl(var(--mobile-secondary)));
+  }
+
+  /* Loading spinner */
+  .loading-spinner {
+    border-color: hsl(var(--mobile-neutral-200));
+    border-top-color: hsl(var(--mobile-primary));
+  }
+
+  /* Gesture feedback */
+  .gesture-feedback {
+    background: hsla(var(--mobile-primary), 0.1);
+    border: 1px solid hsla(var(--mobile-primary), 0.3);
+  }
+}
+
+@layer utilities {
+  /* Mobile-specific utilities */
+  .mobile-container {
+    @apply max-w-md mx-auto;
+  }
+
+  .mobile-padding {
+    @apply px-4 py-2;
+  }
+
+  .mobile-text {
+    @apply text-sm leading-relaxed;
+  }
+
+  .mobile-header {
+    @apply sticky top-0 z-50 bg-white shadow-sm border-b;
+  }
+
+  .mobile-nav {
+    @apply fixed bottom-0 left-0 right-0 bg-white border-t z-30;
+  }
+
+  .mobile-drawer {
+    @apply fixed left-0 top-0 w-80 h-full bg-white shadow-xl z-50 transform transition-transform duration-300 ease-out;
+  }
+
+  .mobile-fab {
+    @apply fixed bottom-20 right-4 w-14 h-14 rounded-full shadow-lg z-20 flex items-center justify-center transition-smooth;
+  }
+}
+
+/* Animation for pull-to-refresh */
+@keyframes pull-refresh {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.pull-refresh-active {
+  animation: pull-refresh 0.3s ease-out;
+}
+
+/* Haptic feedback simulation */
+@keyframes haptic-pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.haptic-feedback {
+  animation: haptic-pulse 0.1s ease-out;
+}
+
+/* Ensure background images work on all devices */
+.login-background {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-attachment: scroll !important;
+}
+
+@media (max-width: 768px) {
+  .login-background {
+    background-attachment: scroll;
+  }
+}

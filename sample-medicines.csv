@@ -1,0 +1,11 @@
+Name,Code,Company,Description,Power,Dosage,Symptoms,Current Stock,Low Stock Threshold
+Arnica Montana,ARN,Boiron,For trauma and injury,30C,3 times daily,Bruises shock trauma physical injury,25,10
+Belladonna,BELL,Heel,For fever and inflammation,30C,2 times daily,High fever headache inflammation redness,15,5
+Nux Vomica,NUX,Dr. Reckeweg,For digestive issues,30C,Before meals,Indigestion constipation hangover gastric problems,8,10
+Rhus Toxicodendron,RHUS,SBL,For joint and muscle pain,200C,Twice daily,Arthritis rheumatism muscle stiffness joint pain,20,12
+Sulphur,SULPH,Schwabe,For skin conditions,30C,Once daily,Eczema psoriasis skin rashes itching,30,15
+Pulsatilla,PULS,Boiron,For respiratory issues,30C,3 times daily,Cold cough respiratory infections mucus,18,8
+Calcarea Carbonica,CALC,Heel,For bone and teeth problems,200C,Once daily,Dental issues bone weakness calcium deficiency,22,10
+Lycopodium,LYC,Dr. Reckeweg,For liver and kidney issues,30C,Before meals,Liver problems kidney stones digestive weakness,12,15
+Sepia,SEP,SBL,For hormonal imbalances,200C,Twice daily,Menstrual problems hormonal issues depression,16,10
+Natrum Muriaticum,NAT-M,Schwabe,For emotional stress,30C,Morning dose,Grief depression emotional trauma stress,9,10
