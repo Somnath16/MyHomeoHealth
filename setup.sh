@@ -389,8 +389,23 @@ main() {
     
     # Run database migrations
     print_status "Running database setup..."
-    source .env.local
-    npm run db:push 2>/dev/null || print_warning "Database migration will be attempted when server starts"
+    if [[ -f ".env.local" ]]; then
+        export $(grep -v '^#' .env.local | xargs)
+        print_status "Environment variables loaded"
+    fi
+    
+    # Test database connection before migration
+    if [[ -n "$DATABASE_URL" ]]; then
+        print_status "Testing database connection..."
+        if psql "$DATABASE_URL" -c "\q" 2>/dev/null; then
+            print_success "Database connection successful"
+            npm run db:push 2>/dev/null && print_success "Database schema updated" || print_warning "Database migration will be attempted when server starts"
+        else
+            print_warning "Unable to connect to database. Schema will be created when server starts"
+        fi
+    else
+        print_warning "DATABASE_URL not set. Please check .env.local file"
+    fi
     
     # Check port availability
     DEFAULT_PORT=5000

@@ -1,4 +1,9 @@
 // Environment configuration for development and production alignment
+import dotenv from 'dotenv';
+
+// Load environment variables from .env.local
+dotenv.config({ path: '.env.local' });
+
 export const config = {
   // Environment detection
   isDevelopment: process.env.NODE_ENV === "development",
