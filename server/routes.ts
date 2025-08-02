@@ -1302,6 +1302,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       
+      // Get the admin user to be deleted
+      const adminToDelete = await db.select().from(schema.users).where(eq(schema.users.id, id)).limit(1);
+      if (adminToDelete.length === 0) {
+        return res.status(404).json({ message: "Admin user not found" });
+      }
+      
+      // Prevent deleting the main 'admin' username
+      if (adminToDelete[0].username === 'admin') {
+        return res.status(400).json({ message: "Cannot delete the main admin user" });
+      }
+      
       // Prevent admin from deleting themselves
       if (id === req.session.userId) {
         return res.status(400).json({ message: "Cannot delete your own admin account" });

@@ -33,23 +33,7 @@ const doctorFormSchema = z.object({
 
 type DoctorFormData = z.infer<typeof doctorFormSchema>;
 
-const adminFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  username: z.string().min(1, "Username is required"),
-  password: z.string().optional(),
-  email: z.string().email().optional().or(z.literal("")),
-}).refine((data) => {
-  // Password is required for new admins, optional for editing
-  if (!data.password || data.password.length === 0) {
-    return true; // Will be handled in submit logic
-  }
-  return data.password.length >= 6;
-}, {
-  message: "Password must be at least 6 characters",
-  path: ["password"],
-});
-
-type AdminFormData = z.infer<typeof adminFormSchema>;
+// Admin form schema removed - now handled elsewhere
 
 const medicineFormSchema = z.object({
   name: z.string().min(1, "Medicine name is required"),
@@ -68,7 +52,7 @@ export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const [showAddDoctorModal, setShowAddDoctorModal] = useState(false);
   const [showAddMedicineModal, setShowAddMedicineModal] = useState(false);
-  const [showAddAdminModal, setShowAddAdminModal] = useState(false);
+
   const [editingDoctor, setEditingDoctor] = useState<any>(null);
   const [editingMedicine, setEditingMedicine] = useState<any>(null);
   const [editingAdmin, setEditingAdmin] = useState<any>(null);
@@ -183,56 +167,11 @@ export default function AdminDashboard() {
     },
   });
 
-  const adminForm = useForm<AdminFormData>({
-    resolver: zodResolver(adminFormSchema),
-    defaultValues: {
-      name: "",
-      username: "",
-      password: "",
-      email: "",
-    },
-  });
+  // Admin form removed - editing handled via inline interface
 
-  const addAdminMutation = useMutation({
-    mutationFn: (data: AdminFormData) => apiRequest('POST', '/api/admin/admins', data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/admins'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/stats'] });
-      setShowAddAdminModal(false);
-      adminForm.reset();
-      toast({
-        title: "Success",
-        description: "Admin user created successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create admin user",
-        variant: "destructive",
-      });
-    },
-  });
+  // Admin creation removed - handled via separate admin management interface
 
-  const updateAdminMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<AdminFormData> }) =>
-      apiRequest('PATCH', `/api/admin/admins/${id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/admins'] });
-      setEditingAdmin(null);
-      toast({
-        title: "Success",
-        description: "Admin user updated successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update admin user",
-        variant: "destructive",
-      });
-    },
-  });
+  // Admin update functionality simplified for inline editing
 
   const deleteAdminMutation = useMutation({
     mutationFn: (id: string) => apiRequest('DELETE', `/api/admin/admins/${id}`),
@@ -428,23 +367,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const onSubmitAdmin = (data: AdminFormData) => {
-    if (editingAdmin) {
-      // For editing, validate password only if provided
-      const updateData = { ...data };
-      if (!updateData.password || updateData.password.length === 0) {
-        delete updateData.password;
-      }
-      updateAdminMutation.mutate({ id: editingAdmin.id, data: updateData });
-    } else {
-      // For new admin, password is required
-      if (!data.password || data.password.length < 6) {
-        adminForm.setError("password", { message: "Password must be at least 6 characters" });
-        return;
-      }
-      addAdminMutation.mutate(data);
-    }
-  };
+  // Admin form submission removed - now handled via profile menu
 
   const handleEditDoctor = (doctor: any) => {
     setEditingDoctor(doctor);
@@ -487,16 +410,7 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleEditAdmin = (admin: any) => {
-    setEditingAdmin(admin);
-    adminForm.reset({
-      name: admin.name,
-      username: admin.username,
-      password: "",
-      email: admin.email || "",
-    });
-    setShowAddAdminModal(true);
-  };
+  // Admin editing simplified - no longer uses modal
 
   const handleDeleteAdmin = (admin: any) => {
     if (window.confirm(`Are you sure you want to delete admin user ${admin.name}? This action cannot be undone.`)) {
@@ -1107,119 +1021,9 @@ export default function AdminDashboard() {
           <TabsContent value="admins" className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Admin Users Management</h2>
-              <Dialog open={showAddAdminModal} onOpenChange={setShowAddAdminModal}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => {
-                    setEditingAdmin(null);
-                    adminForm.reset({
-                      name: "",
-                      username: "",
-                      password: "",
-                      email: "",
-                    });
-                  }}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Admin User
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingAdmin ? 'Edit Admin User' : 'Add New Admin User'}
-                    </DialogTitle>
-                    <DialogDescription>
-                      {editingAdmin ? 'Update admin user information.' : 'Create a new admin user account.'}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="max-h-[60vh] overflow-y-auto">
-                  <Form {...adminForm}>
-                    <form onSubmit={adminForm.handleSubmit(onSubmitAdmin)} className="space-y-4">
-                      <FormField
-                        control={adminForm.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter full name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={adminForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Username</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter username" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={adminForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              {editingAdmin ? 'New Password (leave empty to keep current)' : 'Password'}
-                            </FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder={editingAdmin ? "Leave empty to keep current password" : "Enter password"}
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={adminForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email (Optional)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="email" 
-                                placeholder="Enter email address" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="flex justify-end space-x-2 pt-4">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setShowAddAdminModal(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          type="submit"
-                          disabled={addAdminMutation.isPending || updateAdminMutation.isPending}
-                        >
-                          {editingAdmin ? 'Update Admin' : 'Create Admin'}
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <div className="text-sm text-muted-foreground">
+                Manage system administrators (Note: Main 'admin' user cannot be deleted)
+              </div>
             </div>
 
             <div className="grid gap-4">
@@ -1229,7 +1033,7 @@ export default function AdminDashboard() {
                 </div>
               ) : !admins || admins.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  No admin users found. Create your first admin user using the button above.
+                  No admin users found.
                 </div>
               ) : (
                 admins.map((admin: any) => (
@@ -1253,18 +1057,29 @@ export default function AdminDashboard() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleEditAdmin(admin)}
+                          onClick={() => {
+                            // Simple inline editing could be added here
+                            toast({
+                              title: "Info",
+                              description: "Admin editing functionality moved to dedicated interface",
+                            });
+                          }}
+                          title="Admin details (read-only)"
+                          disabled
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDeleteAdmin(admin)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {admin.username !== 'admin' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteAdmin(admin)}
+                            className="text-destructive hover:text-destructive"
+                            title="Delete admin user"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>

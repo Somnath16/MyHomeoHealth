@@ -5,11 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { User, LogOut, Settings, Key, Globe, MessageCircle } from "lucide-react";
+import { User, LogOut, Settings, Key, Globe, MessageCircle, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -706,6 +707,35 @@ export default function ProfileModal({ isOpen, onClose, onLogout, user: propUser
                     </div>
                   </div>
                   
+                  {/* Admin Management - Only show for admin users */}
+                  {user?.role === 'admin' && (
+                    <>
+                      <Button 
+                        onClick={() => {
+                          onClose();
+                          // Navigate to admin dashboard admins tab
+                          // Use location API or proper navigation
+                          if (window.location.pathname !== '/dashboard') {
+                            window.location.href = '/dashboard';
+                          }
+                          // Set admin tab as active after navigation
+                          setTimeout(() => {
+                            const adminTab = document.querySelector('[data-value="admins"]') as HTMLElement;
+                            if (adminTab) {
+                              adminTab.click();
+                            }
+                          }, 200);
+                        }}
+                        variant="outline" 
+                        className="w-full flex items-center gap-2"
+                      >
+                        <Users className="h-4 w-4" />
+                        Manage Admin Users
+                      </Button>
+                      <Separator />
+                    </>
+                  )}
+
                   <Button 
                     onClick={handleLogout}
                     variant="destructive" 
