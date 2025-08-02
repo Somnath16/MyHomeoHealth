@@ -223,11 +223,18 @@ export class DatabaseStorage implements IStorage {
         canDeletePatients: true, // Enable delete permission for ranajit doctor
       }).returning();
 
-      // Create some sample medicines
+      // Create comprehensive sample medicines
       const medicineData = [
-        { name: "Arnica Montana", code: "ARN", description: "For trauma and injury", dosage: "30C", symptoms: "Bruises, shock, trauma" },
-        { name: "Belladonna", code: "BELL", description: "For fever and inflammation", dosage: "30C", symptoms: "High fever, headache, inflammation" },
-        { name: "Nux Vomica", code: "NUX", description: "For digestive issues", dosage: "30C", symptoms: "Indigestion, constipation, hangover" },
+        { name: "Arnica Montana", code: "ARN", description: "For trauma and injury", dosage: "30C", symptoms: "Bruises, shock, trauma", company: "Dr. Willmar Schwabe", currentStock: 25, lowStockThreshold: 10 },
+        { name: "Belladonna", code: "BELL", description: "For fever and inflammation", dosage: "30C", symptoms: "High fever, headache, inflammation", company: "SBL Pvt Ltd", currentStock: 18, lowStockThreshold: 15 },
+        { name: "Nux Vomica", code: "NUX", description: "For digestive issues", dosage: "30C", symptoms: "Indigestion, constipation, hangover", company: "Hahnemann Laboratories", currentStock: 8, lowStockThreshold: 12 },
+        { name: "Bryonia Alba", code: "BRY", description: "For respiratory and joint issues", dosage: "200C", symptoms: "Dry cough, arthritis, headache", company: "Dr. Reckeweg", currentStock: 22, lowStockThreshold: 10 },
+        { name: "Pulsatilla", code: "PULS", description: "For emotional and hormonal issues", dosage: "30C", symptoms: "Mood swings, menstrual problems, weeping", company: "Bjain Pharmaceuticals", currentStock: 15, lowStockThreshold: 8 },
+        { name: "Rhus Toxicodendron", code: "RHUS", description: "For joint and skin problems", dosage: "30C", symptoms: "Joint stiffness, eczema, restlessness", company: "SBL Pvt Ltd", currentStock: 30, lowStockThreshold: 12 },
+        { name: "Calcarea Carbonica", code: "CALC", description: "For constitutional treatment", dosage: "200C", symptoms: "Weakness, cold tendency, delayed milestones", company: "Adel Pekana", currentStock: 5, lowStockThreshold: 15 },
+        { name: "Lycopodium", code: "LYC", description: "For digestive and liver issues", dosage: "30C", symptoms: "Bloating, liver problems, right-sided symptoms", company: "Dr. Willmar Schwabe", currentStock: 20, lowStockThreshold: 10 },
+        { name: "Sulphur", code: "SULPH", description: "For skin conditions", dosage: "30C", symptoms: "Itchy skin, burning sensation, heat intolerance", company: "Hahnemann Laboratories", currentStock: 12, lowStockThreshold: 8 },
+        { name: "Arsenicum Album", code: "ARS", description: "For anxiety and gastric issues", dosage: "30C", symptoms: "Anxiety, restlessness, burning pains", company: "Bjain Pharmaceuticals", currentStock: 14, lowStockThreshold: 10 }
       ];
 
       const createdMedicines = await db.insert(medicines).values(
@@ -237,15 +244,23 @@ export class DatabaseStorage implements IStorage {
           description: med.description,
           dosage: med.dosage,
           symptoms: med.symptoms,
+          company: med.company,
+          currentStock: med.currentStock,
+          lowStockThreshold: med.lowStockThreshold,
           doctorId: doctor.id,
         }))
       ).returning();
 
-      // Create some sample patients
+      // Create comprehensive sample patients
       const patientData = [
-        { name: "Somnath", age: 25, gender: "Male", phone: "74567543", address: "Kolkata", location: "Kolkata" },
-        { name: "Priya Sharma", age: 32, gender: "Female", phone: "9876543210", address: "Mumbai", location: "Mumbai" },
-        { name: "Rajesh Kumar", age: 45, gender: "Male", phone: "9123456789", address: "Delhi", location: "Delhi" }
+        { name: "Somnath Roy", age: 25, gender: "Male", phone: "9874567543", address: "123 Park Street, Kolkata", location: "Kolkata" },
+        { name: "Priya Sharma", age: 32, gender: "Female", phone: "9876543210", address: "45 Marine Drive, Mumbai", location: "Mumbai" },
+        { name: "Rajesh Kumar", age: 45, gender: "Male", phone: "9123456789", address: "78 CP, Delhi", location: "Delhi" },
+        { name: "Anita Das", age: 28, gender: "Female", phone: "9234567890", address: "12 Lake Road, Kolkata", location: "Kolkata" },
+        { name: "Ravi Gupta", age: 38, gender: "Male", phone: "9345678901", address: "67 MG Road, Bangalore", location: "Bangalore" },
+        { name: "Sunita Patel", age: 42, gender: "Female", phone: "9456789012", address: "34 Station Road, Pune", location: "Pune" },
+        { name: "Amit Sen", age: 35, gender: "Male", phone: "9567890123", address: "56 Salt Lake, Kolkata", location: "Kolkata" },
+        { name: "Neha Agarwal", age: 29, gender: "Female", phone: "9678901234", address: "89 Linking Road, Mumbai", location: "Mumbai" }
       ];
 
       const createdPatients = await db.insert(patients).values(
@@ -264,25 +279,115 @@ export class DatabaseStorage implements IStorage {
         }))
       ).returning();
 
-      // Create a sample prescription
+      // Create sample appointments
+      const appointmentData = [];
+      if (createdPatients.length > 0) {
+        // Create appointments for the first few patients
+        for (let i = 0; i < Math.min(createdPatients.length, 5); i++) {
+          const patient = createdPatients[i];
+          const appointmentDate = new Date();
+          appointmentDate.setDate(appointmentDate.getDate() + i); // Different dates
+          appointmentDate.setHours(10 + i, 0, 0, 0); // Different times
+          
+          const appointmentId = await this.generateAppointmentId(doctor.id);
+          
+          appointmentData.push({
+            appointmentId,
+            patientId: patient.id,
+            doctorId: doctor.id,
+            dateTime: appointmentDate,
+            notes: [
+              "Chronic headache and fatigue",
+              "Digestive issues and bloating", 
+              "Joint pain and stiffness",
+              "Skin problems and itching",
+              "Anxiety and sleep disorders"
+            ][i],
+            status: i === 0 ? "completed" : "scheduled"
+          });
+        }
+      }
+
+      const createdAppointments = await db.insert(appointments).values(appointmentData).returning();
+
+      // Create comprehensive sample prescriptions
       if (createdPatients.length > 0 && createdMedicines.length > 0) {
-        await db.insert(prescriptions).values({
-          prescriptionId: "RRX-001",
-          patientId: createdPatients[0].id,
-          doctorId: doctor.id,
-          appointmentId: null,
-          symptoms: "Headache, fatigue, general weakness",
-          medicines: [
-            {
-              medicineId: createdMedicines[0].id,
-              dosage: "30C",
-              frequency: "3 times daily",
-              duration: "15 days",
-              instructions: "Take before meals"
-            }
-          ],
-          notes: "Patient showing improvement with homeopathic treatment",
-        });
+        const prescriptionData = [
+          {
+            prescriptionId: "RSX-001",
+            patientId: createdPatients[0].id,
+            doctorId: doctor.id,
+            appointmentId: createdAppointments.length > 0 ? createdAppointments[0].id : null,
+            symptoms: "Chronic headache, fatigue, general weakness, stress-related symptoms",
+            medicines: [
+              {
+                medicineId: createdMedicines[0].id, // Arnica Montana
+                dosage: "30C",
+                frequency: "3 times daily",
+                duration: "15 days",
+                instructions: "Take 30 minutes before meals"
+              },
+              {
+                medicineId: createdMedicines[1].id, // Belladonna
+                dosage: "30C", 
+                frequency: "2 times daily",
+                duration: "10 days",
+                instructions: "Take when headache is severe"
+              }
+            ],
+            notes: "Patient showing gradual improvement with constitutional treatment. Continue for 2 weeks and follow up.",
+          },
+          {
+            prescriptionId: "RSX-002",
+            patientId: createdPatients[1].id,
+            doctorId: doctor.id,
+            appointmentId: createdAppointments.length > 1 ? createdAppointments[1].id : null,
+            symptoms: "Digestive issues, bloating after meals, constipation, acid reflux",
+            medicines: [
+              {
+                medicineId: createdMedicines[2].id, // Nux Vomica
+                dosage: "30C",
+                frequency: "3 times daily",
+                duration: "20 days",
+                instructions: "Take 1 hour after meals"
+              },
+              {
+                medicineId: createdMedicines[7].id, // Lycopodium
+                dosage: "30C",
+                frequency: "2 times daily", 
+                duration: "15 days",
+                instructions: "Take before breakfast and dinner"
+              }
+            ],
+            notes: "Lifestyle modifications recommended. Avoid spicy food. Regular meal timings essential.",
+          },
+          {
+            prescriptionId: "RSX-003",
+            patientId: createdPatients[2].id,
+            doctorId: doctor.id,
+            appointmentId: createdAppointments.length > 2 ? createdAppointments[2].id : null,
+            symptoms: "Joint pain, morning stiffness, arthritis symptoms, weather sensitivity",
+            medicines: [
+              {
+                medicineId: createdMedicines[5].id, // Rhus Tox
+                dosage: "30C",
+                frequency: "3 times daily",
+                duration: "25 days",
+                instructions: "Take during acute pain episodes"
+              },
+              {
+                medicineId: createdMedicines[3].id, // Bryonia
+                dosage: "200C",
+                frequency: "Once daily",
+                duration: "30 days",
+                instructions: "Take in the morning on empty stomach"
+              }
+            ],
+            notes: "Gentle exercise recommended. Hot water compress helps during pain. Avoid cold weather exposure.",
+          }
+        ];
+
+        await db.insert(prescriptions).values(prescriptionData);
       }
     } catch (error) {
       console.error('Error initializing data:', error);
